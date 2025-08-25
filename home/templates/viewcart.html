@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load range_tags %}
+
+{% block content %}
+
+<style>
+    .cart-container {
+        max-width: 1000px;
+        margin: auto;
+        padding: 2rem 0;
+    }
+    .cart-item {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.07);
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+    .product-img {
+        width: 120px;
+        height: 120px;
+        object-fit: cover;
+        border-radius: 8px;
+    }
+    .cart-summary {
+        padding: 20px;
+        background: #f8f9fa;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+</style>
+
+<div class="container cart-container">
+    <h2 class="fw-bold text-success mb-4">Your Shopping Cart</h2>
+
+    {% if items %}
+        {% for item in items %}
+        <div class="cart-item row align-items-center">
+            <div class="col-md-3">
+                <img src="{{ item.product.image.url }}" class="product-img" alt="{{ item.product.name }}">
+            </div>
+            <div class="col-md-9">
+                <h5>{{ item.product.name }} ({{ item.product.unit }})</h5>
+                <p class="text-muted mb-1">₹{{ item.product.price }} x {{ item.quantity }} = ₹{{ item.total_price }}</p>
+
+                <form method="post" action="/updatecartqty/{{ item.product.id }}/" class="d-inline">
+                    {% csrf_token %}
+                    <select name="qty" onchange="this.form.submit()" class="form-select form-select-sm w-auto d-inline">
+                        {% for i in range %}
+                            <option value="{{ i }}" {% if item.quantity == i %}selected{% endif %}>{{ i }}</option>
+                        {% endfor %}
+                    </select>
+                </form>
+
+                <a href="/removefromcart/{{ item.product.id }}/" class="btn btn-outline-danger btn-sm mt-2">Remove</a>
+            </div>
+        </div>
+        {% endfor %}
+
+        <!-- Price Summary BELOW the cart items -->
+        <div class="cart-summary mt-4">
+            <h5 class="fw-bold mb-3">Price Details</h5>
+            <p class="d-flex justify-content-between">
+                <span>Subtotal</span> <span>₹{{ total }}</span>
+            </p>
+            <p class="d-flex justify-content-between">
+                <span>Delivery Charges</span> <span class="text-success">Free</span>
+            </p>
+            <hr>
+            <p class="d-flex justify-content-between fw-bold">
+                <span>Total Amount</span> <span>₹{{ total }}</span>
+            </p>
+            <a href="/checkout/" class="btn btn-success w-100 mt-3">Proceed to Checkout</a>
+        </div>
+
+    {% else %}
+        <div class="alert alert-info">Your cart is empty. <a href="/">Start shopping</a>.</div>
+    {% endif %}
+</div>
+
+{% endblock %}

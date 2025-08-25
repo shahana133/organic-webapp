@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<style>
+    .profile-container {
+        max-width: 1000px;
+        margin: auto;
+    }
+    .profile-card {
+        background: #fff;
+        border-radius: 20px;
+        box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+        padding: 30px;
+    }
+    .profile-image {
+        width: 150px;
+        height: 150px;
+        object-fit: cover;
+        border-radius: 50%;
+        border: 4px solid #4caf50;
+        margin-bottom: 20px;
+    }
+    .btn-group-custom .btn {
+        margin-right: 10px;
+    }
+    .table-orders th {
+        background-color: #e9f7ef;
+    }
+</style>
+
+<div class="container profile-container py-5">
+    <a href="/products/" class="btn btn-outline-success my-3">
+          ← Back to Products
+</a>
+
+    <div class="profile-card">
+        <div class="text-center">
+            {% if profile.image %}
+                <img src="{{ profile.image.url }}" alt="Profile" class="profile-image">
+            {% else %}
+                <img src="{% static 'images/default-profile.png' %}" alt="Default" class="profile-image">
+            {% endif %}
+            <h3 class="text-success mt-2">{{ request.user.username }}</h3>
+            <p class="text-muted">Customer Profile</p>
+        </div>
+
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Username</label>
+                    <input type="text" name="username" class="form-control" value="{{ request.user.username }}" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Phone</label>
+                    {{ form.phone }}
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">First Name</label>
+                    <input type="text" name="first_name" class="form-control" value="{{ request.user.first_name }}">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Last Name</label>
+                    <input type="text" name="last_name" class="form-control" value="{{ request.user.last_name }}">
+                </div>
+                <div class="col-md-12 mb-3">
+                    <label class="form-label">Profile Image</label>
+                    {{ form.image }}
+                </div>
+            </div>
+            <div class="d-flex justify-content-between align-items-center btn-group-custom">
+                <button type="submit" class="btn btn-success">Update Profile</button>
+                <div>
+                    <a href="/password_change/" class="btn btn-outline-secondary">Change Password</a>
+                    <a href="/logout/" class="btn btn-outline-danger">Logout</a>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <hr class="my-5">
+
+    <div class="profile-card">
+        <h4 class="mb-4 text-success">Order History</h4>
+        {% if orders %}
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover align-middle table-orders">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Products</th>
+                        <th>Status</th>
+                        <th>Ordered On</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in orders %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>
+                            <ul class="ps-3 mb-0">
+                                {% for product in order.products.all %}
+                                    <li>{{ product.name }}</li>
+                                {% endfor %}
+                            </ul>
+                        </td>
+                        <td><span class="badge bg-success">{{ order.status }}</span></td>
+                        <td>{{ order.created_at|date:"M d, Y H:i" }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+            <p class="text-muted">No orders found.</p>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block title %}My Orders{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>My Orders</h2>
+
+    {% if orders %}
+        {% for order in orders %}
+            <div class="card mb-3 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Order ID: {{ order.id }}</h5>
+                    <p class="card-text"><strong>Status:</strong> {{ order.status }}</p>
+                    <p class="card-text"><strong>Placed On:</strong> {{ order.created_at|date:"d M Y, h:i A" }}</p>
+                    <p class="card-text"><strong>Address:</strong> {{ order.address }}</p>
+                    <p class="card-text"><strong>Payment Method:</strong> {{ order.payment_method }}</p>
+
+                    <h6>Items:</h6>
+                    <ul>
+                        {% for product in order.products.all %}
+                            <li>{{ product.name }} - ₹{{ product.price }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>You have not placed any orders yet.</p>
+    {% endif %}
+</div>
+{% endblock %}

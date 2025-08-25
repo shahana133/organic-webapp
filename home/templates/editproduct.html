@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block title %}Edit Product{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Edit Product</h2>
+    <form method="POST" enctype="multipart/form-data" class="mt-4">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label>Name:</label>
+            <input type="text" name="name" value="{{ product.name }}" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label>Price:</label>
+            <input type="number" name="price" value="{{ product.price }}" step="0.01" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label>Current Image:</label><br>
+            <img src="{{ product.image.url }}" width="150">
+        </div>
+        <div class="mb-3">
+            <label>Change Image:</label>
+            <input type="file" name="image" class="form-control">
+        </div>
+        <button type="submit" class="btn btn-primary">Update Product</button>
+    </form>
+</div>
+{% endblock %}

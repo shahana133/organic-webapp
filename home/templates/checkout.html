@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Checkout & Payment{% endblock %}
+
+{% block content %}
+<style>
+    .address-card:hover {
+        border-color: #198754;
+        box-shadow: 0 4px 10px rgba(25,135,84,0.15);
+    }
+    .checkout-input {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ced4da;
+        border-radius: 8px;
+        margin-bottom: 12px;
+        font-size: 15px;
+    }
+    .checkout-form-container {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 20px;
+        margin-top: 1.5rem;
+        box-shadow: 0 3px 8px rgba(0,0,0,0.05);
+    }
+    .form-section-title {
+        font-weight: 600;
+        color: #198754;
+        margin-bottom: 10px;
+    }
+</style>
+
+<div class="container my-5">
+    <div class="row g-4">
+
+        <!-- Address Selection & Form -->
+        <div class="col-md-8">
+            <h4 class="fw-bold text-success mb-3">Select Delivery Address</h4>
+
+            {% if addresses %}
+                {% for address in addresses %}
+                <div class="card mb-3 border address-card">
+                    <div class="card-body">
+                        <h6 class="fw-semibold">{{ address.full_name }}</h6>
+                        <p class="mb-1 small text-muted">{{ address.address_line }}, {{ address.city }}, {{ address.state }} - {{ address.pincode }}</p>
+                        <p class="mb-2 small text-muted">Phone: {{ address.phone }}</p>
+                        <div class="d-flex gap-2">
+                            <!-- select address -->
+                            <input type="radio" name="selected_address" value="{{ address.id }}" form="orderForm" required>
+                            <label class="small text-muted">Deliver Here</label>
+                            <a href="/editaddress/{{ address.id }}/" class="btn btn-sm btn-outline-secondary">Edit</a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p class="text-muted">No saved addresses. <a href="#addAddress" class="text-success fw-semibold">Add one now ↓</a>.</p>
+            {% endif %}
+
+            <!-- Address Form -->
+            <div class="checkout-form-container" id="addAddress">
+                <h5 class="form-section-title">Add New Address</h5>
+                <form action="/addaddress/" method="post">
+                    {% csrf_token %}
+                    <input type="text" name="full_name" placeholder="Full Name" class="checkout-input" required>
+                    <input type="text" name="phone" placeholder="Phone Number" class="checkout-input" required>
+                    <textarea name="address_line" rows="2" placeholder="Full Address" class="checkout-input" required></textarea>
+                    <input type="text" name="city" placeholder="City" class="checkout-input" required>
+                    <input type="text" name="state" placeholder="State" class="checkout-input" required>
+                    <input type="text" name="pincode" placeholder="Pincode" class="checkout-input" required>
+                    <button type="submit" class="btn btn-success w-100 mt-2 fw-bold">Save Address</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Payment Summary -->
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-white border-bottom">
+                    <h5 class="mb-0 fw-bold text-success">Order Summary</h5>
+                </div>
+                <div class="card-body">
+                    <p class="d-flex justify-content-between mb-2">
+                        <span>Item Total</span>
+                        <span>₹{{ total_price }}</span>
+                    </p>
+                    <p class="d-flex justify-content-between mb-2">
+                        <span>Delivery Charges</span>
+                        <span class="text-success">Free</span>
+                    </p>
+                    <hr>
+                    <p class="fw-bold fs-5 text-success">Total Amount <span class="float-end">₹{{ total }}</span></p>
+                </div>
+            </div>
+
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white border-bottom">
+                    <h6 class="mb-0 fw-bold text-success">Payment Method</h6>
+                </div>
+                <div class="card-body">
+                    <!-- ✅ FIXED: Form should go to /placeorder/ -->
+                    <form method="POST" action="/placeorder/" id="orderForm">
+                        {% csrf_token %}
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="radio" name="payment_method" id="cod" value="cod" checked>
+                            <label class="form-check-label" for="cod">Cash on Delivery</label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="radio" name="payment_method" id="upi" value="upi">
+                            <label class="form-check-label" for="upi">UPI</label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="radio" name="payment_method" id="card" value="card">
+                            <label class="form-check-label" for="card">Credit / Debit Card</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="payment_method" id="netbanking" value="netbanking">
+                            <label class="form-check-label" for="netbanking">Net Banking</label>
+                        </div>
+
+                        <!-- selected address also goes with form -->
+                        <button type="submit" class="btn btn-success w-100 mt-4 fw-bold py-2">
+                            Pay ₹{{ total_price }}
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

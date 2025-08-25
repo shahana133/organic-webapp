@@ -1,0 +1,179 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    .product-card {
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .product-card:hover {
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+        transform: scale(1.02);
+    }
+
+    .product-img {
+        height: 200px;
+        object-fit: cover;
+        border-bottom: 1px solid #eee;
+    }
+
+    .card-body {
+        flex: 1;
+        padding: 1rem;
+        text-align: center;
+    }
+
+    .card-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 0.3rem;
+        text-transform: capitalize;
+    }
+
+    .card-text {
+        color: #388e3c;
+        font-weight: bold;
+        font-size: 1.05rem;
+    }
+
+    .card-footer {
+        background-color: white;
+        padding: 0.75rem;
+    }
+
+    .sidebar {
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 1rem;
+        background: #fff;
+    }
+
+    .sidebar h5 {
+        margin-bottom: 1rem;
+        font-weight: bold;
+    }
+
+    .form-check {
+        margin-bottom: 0.5rem;
+    }
+
+    @media (max-width: 768px) {
+        .product-img {
+            height: 160px;
+        }
+    }
+</style>
+
+<div class="container mt-4">
+    <a href="/products/" class="btn btn-outline-success my-3">← Back to Products</a>
+    <div class="row">
+        <!-- Sidebar Filters -->
+        <div class="col-md-3 mb-4">
+            <div class="sidebar">
+                <h5>Filters</h5>
+
+                <form method="GET">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Category</label>
+                        {% for cat in categories %}
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="category" value="{{ cat.id }}"
+                                   {% if request.GET.category == cat.id|stringformat:"s" %}checked{% endif %}
+                                   onchange="this.form.submit()">
+                            <label class="form-check-label">{{ cat.name }}</label>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Preserve search and sort values -->
+                    <input type="hidden" name="search" value="{{ request.GET.search }}">
+                    <input type="hidden" name="sort" value="{{ request.GET.sort }}">
+                </form>
+            </div>
+        </div>
+
+        <!-- Product Grid and Sorting -->
+        <div class="col-md-9">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <form method="GET" class="d-flex gap-2 w-100 justify-content-end">
+                    <input type="text" name="search" placeholder="Search..." value="{{ request.GET.search }}" class="form-control" style="max-width: 200px;">
+
+                    <!-- Preserve category selection -->
+                    <input type="hidden" name="category" value="{{ request.GET.category }}">
+
+                    <select name="sort" class="form-select" style="max-width: 200px;" onchange="this.form.submit()">
+                        <option value="">Sort By</option>
+                        <option value="low" {% if request.GET.sort == 'low' %}selected{% endif %}>Price: Low to High</option>
+                        <option value="high" {% if request.GET.sort == 'high' %}selected{% endif %}>Price: High to Low</option>
+                    </select>
+                    <button type="submit" class="btn btn-outline-success">Apply</button>
+                </form>
+            </div>
+
+            <div class="row g-4">
+                {% for product in products %}
+                <div class="col-md-4 col-sm-6 d-flex">
+                    <div class="card product-card w-100">
+                        <a href="/viewproduct/{{ product.id }}/">
+                            {% if product.image %}
+                                <img src="{{ product.image.url }}" class="card-img-top product-img" alt="{{ product.name }}">
+                            {% else %}
+                                <img src="{% static 'images/placeholder.png' %}" class="card-img-top product-img" alt="No Image">
+                            {% endif %}
+                        </a>
+                        <div class="card-body">
+                        <h5 class="card-title">{{ product.name }}</h5>
+                         <p class="card-text">₹{{ product.price }} / {{ product.unit }}</p>
+                     </div>
+                        <div class="card-footer">
+                            {% if user.is_authenticated %}
+                                <a href="/addtocart/{{ product.id }}/" class="btn btn-outline-success w-100">Add to Cart</a>
+                            {% else %}
+                                <a href="/login/?next=/addtocart/{{ product.id }}/" class="btn btn-warning w-100">Login to Add</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12 text-center">
+                    <div class="alert alert-warning">No products found.</div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Pagination -->
+            {% if products.has_other_pages %}
+            <div class="mt-4 d-flex justify-content-center">
+                <ul class="pagination">
+                    {% if products.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ products.previous_page_number }}&search={{ request.GET.search }}&category={{ request.GET.category }}&sort={{ request.GET.sort }}">Previous</a>
+                    </li>
+                    {% endif %}
+
+                    {% for num in products.paginator.page_range %}
+                        {% if products.number == num %}
+                            <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                        {% else %}
+                            <li class="page-item"><a class="page-link" href="?page={{ num }}&search={{ request.GET.search }}&category={{ request.GET.category }}&sort={{ request.GET.sort }}">{{ num }}</a></li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if products.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ products.next_page_number }}&search={{ request.GET.search }}&category={{ request.GET.category }}&sort={{ request.GET.sort }}">Next</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

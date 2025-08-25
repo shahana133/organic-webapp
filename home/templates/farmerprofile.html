@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<style>
+  .profile-photo {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 4px solid #4caf50;
+  }
+</style>
+
+<div class="container mt-4">
+  <a href="/products/" class="btn btn-outline-success mb-3">← Back to Products</a>
+
+  <!-- Messages -->
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>👨‍🌾 Farmer Profile</h2>
+    <a href="/logout/" class="btn btn-outline-danger">🚪 Logout</a>
+  </div>
+
+  <!-- Profile Info Section -->
+  <div class="bg-light p-4 rounded border mb-4 d-flex align-items-center gap-4">
+    <img src="{% if request.user.userprofile.image %}{{ request.user.userprofile.image.url }}{% else %}{% static 'images/default_profile.png' %}{% endif %}" class="profile-photo" alt="Profile Photo">
+    <div>
+      <h4 class="mb-1">Hello, <span class="text-primary">{{ request.user.username }}</span></h4>
+      <p class="mb-0"><strong>📞 Phone:</strong> {{ request.user.userprofile.phone }}</p>
+    </div>
+  </div>
+
+  <!-- Profile Update Form -->
+  <div class="card mb-4">
+    <div class="card-body">
+      <h5 class="card-title">✏️ Update Profile</h5>
+      <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="row g-3">
+          <div class="col-md-4">
+            <label class="form-label">Username</label>
+            <input type="text" name="username" class="form-control" value="{{ request.user.username }}">
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">First Name</label>
+            <input type="text" name="first_name" class="form-control" value="{{ request.user.first_name }}">
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Last Name</label>
+            <input type="text" name="last_name" class="form-control" value="{{ request.user.last_name }}">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Phone</label>
+            <input type="text" name="phone" class="form-control" value="{{ request.user.userprofile.phone }}">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Profile Photo</label>
+            <input type="file" name="image" class="form-control">
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-success mt-3">💾 Update</button>
+        <a href="/changepassword/" class="btn btn-warning mt-3 ms-2">🔒 Change Password</a>
+      </form>
+    </div>
+  </div>
+
+  <!-- Delete Account Form -->
+  <div class="text-center mb-5">
+    <form method="POST" action="/deleteaccount/" onsubmit="return confirm('Are you sure you want to delete your account?');">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-outline-danger">🗑️ Delete My Account</button>
+    </form>
+  </div>
+
+  <!-- My Products -->
+  <h3 class="mb-3">📦 My Products</h3>
+  <div class="row">
+    {% if products %}
+      {% for product in products %}
+        <div class="col-md-4 mb-4">
+          <div class="card shadow-sm">
+            <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
+            <div class="card-body">
+              <h5 class="card-title">{{ product.name }}</h5>
+              <p class="card-text">{{ product.details }}</p>
+              <p><strong>₹{{ product.price }}</strong></p>
+              <a href="/editproduct/{{ product.id }}/" class="btn btn-sm btn-primary">✏️ Edit</a>
+              <a href="/deleteproduct/{{ product.id }}/" class="btn btn-sm btn-danger">🗑️ Delete</a>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    {% else %}
+      <p>No products found. Start by adding one!</p>
+    {% endif %}
+  </div>
+
+  <div class="text-center mt-4">
+    <a href="/addproduct/" class="btn btn-success btn-lg">➕ Add Product</a>
+  </div>
+</div>
+
+{% endblock %}
