@@ -254,7 +254,7 @@
         {% else %}
           <img src="{% static 'images/placeholder.png' %}" class="card-img-top" alt="No Image Available">
         {% endif %}
-        <div class="card-body">
+        <div class="card-body ">
           <h6 class="card-title fw-semibold">{{ product.name }}</h6>
             <p class="mb-1">
             <span class="text-success fw-bold">₹{{ product.price }} / {{ product.unit }}</span>
@@ -265,8 +265,8 @@
         </div>
       </div>
     </a>
-    <div class="card-footer bg-white border-0 text-center">
-      <a href="/addtocart/{{ product.id }}/" class="btn btn-outline-dark btn-sm w-100">+ ADD TO CART</a>
+    <div class="card-footer bg-white border-0 text-center pt-2 mt-auto">
+      <a href="/addtocart/{{ product.id }}/" class="btn btn-outline-dark btn-sm w-100 mt-auto"> + ADD TO CART </a>
     </div>
   </div>
   {% endfor %}

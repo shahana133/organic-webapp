@@ -1,31 +1,76 @@
 {% extends 'base.html' %}
-{% block title %}My Orders{% endblock %}
-
+{% load static %}
 {% block content %}
 <div class="container mt-4">
-    <h2>My Orders</h2>
+    <h3 class="mb-4">My Orders</h3>
 
     {% if orders %}
         {% for order in orders %}
-            <div class="card mb-3 shadow-sm">
-                <div class="card-body">
-                    <h5 class="card-title">Order ID: {{ order.id }}</h5>
-                    <p class="card-text"><strong>Status:</strong> {{ order.status }}</p>
-                    <p class="card-text"><strong>Placed On:</strong> {{ order.created_at|date:"d M Y, h:i A" }}</p>
-                    <p class="card-text"><strong>Address:</strong> {{ order.address }}</p>
-                    <p class="card-text"><strong>Payment Method:</strong> {{ order.payment_method }}</p>
+        <div class="card shadow-sm mb-3">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <!-- Order Info -->
+                        <h5>Order #{{ order.id }}</h5>
+                        <p class="text-muted">{{ order.created_at|date:"M d, Y H:i" }}</p>
+                        <p><strong>Total:</strong> ₹{{ order.total_amount }}</p>
+                        <p><strong>Status:</strong> 
+                            {% if order.status == "Pending" %}
+                                <span class="badge bg-warning">{{ order.status }}</span>
+                            {% elif order.status == "Delivered" %}
+                                <span class="badge bg-success">{{ order.status }}</span>
+                            {% elif order.status == "Cancelled" %}
+                                <span class="badge bg-danger">{{ order.status }}</span>
+                            {% else %}
+                                <span class="badge bg-info">{{ order.status }}</span>
+                            {% endif %}
+                        </p>
+                        <p><strong>Payment:</strong> {{ order.payment_method }}</p>
+                        <p><strong>Address:</strong> {{ order.address }}</p>
 
-                    <h6>Items:</h6>
-                    <ul>
-                        {% for product in order.products.all %}
-                            <li>{{ product.name }} - ₹{{ product.price }}</li>
-                        {% endfor %}
-                    </ul>
+                        <!-- ✅ Product Details -->
+                        <div class="mt-3">
+                            <strong>Products:</strong>
+                            <ul class="list-group mt-2">
+                                {% for product in order.products.all %}
+                                <li class="list-group-item d-flex align-items-center">
+                                    <!-- Product Image -->
+                                    {% if product.image %}
+                                        <img src="{{ product.image.url }}" alt="{{ product.name }}"
+                                             class="rounded me-3"
+                                             style="width:60px; height:60px; object-fit:cover;">
+                                    {% else %}
+                                        <img src="{% static 'images/default-product.png' %}" alt="No Image"
+                                             class="rounded me-3"
+                                             style="width:60px; height:60px; object-fit:cover;">
+                                    {% endif %}
+
+                                    <!-- Product Info -->
+                                    <div class="flex-grow-1">
+                                        <div class="fw-bold">{{ product.name }}</div>
+                                        <small>Qty: {{ product.quantity }}</small>
+                                    </div>
+                                    <div class="fw-bold">
+                                        ₹{{ product.price }}
+                                    </div>
+                                </li>
+                                {% empty %}
+                                    <li class="list-group-item text-muted">No products found in this order.</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- View Details Button -->
+                    <div>
+                        <a href="/order/{{ order.id }}/" class="btn btn-primary">View Details</a>
+                    </div>
                 </div>
             </div>
+        </div>
         {% endfor %}
     {% else %}
-        <p>You have not placed any orders yet.</p>
+        <p class="text-muted">No orders found.</p>
     {% endif %}
 </div>
 {% endblock %}

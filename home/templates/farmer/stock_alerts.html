@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+  <h2>Stock Alerts</h2>
+  <ul class="list-group mt-3">
+    {% for alert in alerts %}
+    <li class="list-group-item text-danger">{{ alert.message }}</li>
+    {% empty %}
+    <li class="list-group-item">No stock alerts.</li>
+    {% endfor %}
+  </ul>
+</div>
+{% endblock %}

@@ -50,12 +50,12 @@
     <div class="collapse navbar-collapse justify-content-between" id="mainNavbar">
 
         <!-- Centered Search Bar -->
-        <div class="mx-auto" style="width: 100%; max-width: 500px;">
-            <form class="d-flex" method="get" action="/products/">
-                <input class="form-control me-2" type="search" name="q" placeholder="Search products">
-                <button class="btn btn-success" type="submit">Search</button>
-            </form>
-        </div>
+    <div class="mx-auto" style="width: 100%; max-width: 500px;">
+           <form class="d-flex" method="get" action="/products/">
+               <input class="form-control me-2" type="search" name="q" placeholder="Search products" value="{{ request.GET.q }}">
+               <button class="btn btn-success" type="submit">Search</button>
+           </form>
+     </div>
           <div class="d-flex align-items-center">
               {% if user.is_authenticated %}
                 <a href="/logout/" class="btn btn-outline-danger ms-2">Logout</a>

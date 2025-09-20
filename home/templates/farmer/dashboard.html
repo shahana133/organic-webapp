@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+  <h2>Farmer Dashboard</h2>
+  <div class="row mt-3">
+    <div class="col-md-3">
+      <div class="card p-3 shadow">
+        <h5>Total Products</h5>
+        <p>{{ total_products }}</p>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card p-3 shadow">
+        <h5>Total Orders</h5>
+        <p>{{ total_orders }}</p>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card p-3 shadow">
+        <h5>Pending Orders</h5>
+        <p>{{ pending_orders }}</p>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card p-3 shadow">
+        <h5>Total Earnings</h5>
+        <p>₹{{ total_earnings }}</p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

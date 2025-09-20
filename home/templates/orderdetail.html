@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<div class="container py-4">
+    <a href="/customerprofile/" class="btn btn-outline-success mb-3">← Back to Profile</a>
+
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-body">
+            <!-- Order Info -->
+            <h3 class="fw-bold text-success mb-3">Order #{{ order.id }}</h3>
+            <p><strong>Date:</strong> {{ order.created_at|date:"M d, Y H:i" }}</p>
+            <p><strong>Total:</strong> ₹{{ order.total_amount }}</p>
+            <p><strong>Status:</strong> 
+                {% if order.status == "Pending" %}
+                    <span class="badge bg-warning">{{ order.status }}</span>
+                {% elif order.status == "Delivered" %}
+                    <span class="badge bg-success">{{ order.status }}</span>
+                {% elif order.status == "Cancelled" %}
+                    <span class="badge bg-danger">{{ order.status }}</span>
+                {% else %}
+                    <span class="badge bg-info">{{ order.status }}</span>
+                {% endif %}
+            </p>
+            <p><strong>Payment:</strong> {{ order.payment_method }}</p>
+            <p><strong>Address:</strong> {{ order.address }}</p>
+
+            <!-- Products -->
+            <h5 class="mt-4 mb-3">Products</h5>
+            <ul class="list-group">
+                {% for product in order.products.all %}
+                    <li class="list-group-item d-flex align-items-center justify-content-between">
+                        <div class="d-flex align-items-center">
+                            {% if product.image %}
+                                <img src="{{ product.image.url }}" alt="{{ product.name }}"
+                                     class="rounded me-3" style="width:60px; height:60px; object-fit:cover;">
+                            {% else %}
+                                <img src="{% static 'images/default-product.png' %}" alt="No Image"
+                                     class="rounded me-3" style="width:60px; height:60px; object-fit:cover;">
+                            {% endif %}
+                            <strong>{{ product.name }}</strong>
+                        </div>
+                        <span class="fw-bold">₹{{ product.price }}</span>
+                    </li>
+                {% empty %}
+                    <li class="list-group-item text-muted">No products found in this order.</li>
+                {% endfor %}
+            </ul>
+
+            <!-- Cancel Button -->
+            {% if order.status == "Pending" %}
+            <div class="mt-4">
+                 <a href="/cancelorder/{{ order.id }}/" 
+                       class="btn btn-danger"
+                       onclick="return confirm('Cancel this order?');">
+                       Cancel Order
+                 </a>
+             </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

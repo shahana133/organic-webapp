@@ -133,8 +133,23 @@
                      </div>
                         <div class="card-footer">
                             {% if user.is_authenticated %}
-                                <a href="/addtocart/{{ product.id }}/" class="btn btn-outline-success w-100">Add to Cart</a>
-                            {% else %}
+                                <div class="card-footer d-grid gap-2">
+    <!-- Add to Cart -->
+                                  <a href="/addtocart/{{ product.id }}/" 
+                                       class="btn btn-warning fw-bold text-dark">
+                                           Add to Cart
+                                  </a>
+
+    <!-- Buy Now -->
+                                   <form action="/buy-now/{{ product.id }}/" method="get" class="d-flex gap-2">
+                                      <input type="number" name="qty" value="1" min="1" 
+                                      class="form-control form-control-sm w-25 text-center">
+                                       <button type="submit" class="btn btn-success fw-bold w-100">
+                                          Buy Now
+                                       </button>
+                                   </form>
+                             </div>
+                        {% else %}
                                 <a href="/login/?next=/addtocart/{{ product.id }}/" class="btn btn-warning w-100">Login to Add</a>
                             {% endif %}
                         </div>

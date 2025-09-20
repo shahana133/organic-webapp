@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+  <h2>My Orders</h2>
+  <table class="table table-bordered mt-3">
+    <thead>
+      <tr>
+        <th>Order ID</th>
+        <th>Product</th>
+        <th>Qty</th>
+        <th>Status</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for order in orders %}
+      <tr>
+        <td>{{ order.order_item.order.id }}</td>
+        <td>{{ order.order_item.product.name }}</td>
+        <td>{{ order.order_item.quantity }}</td>
+        <td>{{ order.status }}</td>
+        <td><a href="{% url 'update_farmer_order_statusfn' order.id %}" class="btn btn-sm btn-primary">Update</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

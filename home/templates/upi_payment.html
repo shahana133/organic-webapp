@@ -4,8 +4,18 @@
 {% block content %}
 <div class="container text-center my-5">
     <h2 class="text-success fw-bold">UPI Payment</h2>
-    <p class="text-muted">Scan the QR code or enter your UPI ID to complete payment.</p>
+    <p class="text-muted">Pay ₹{{ order_total }} via UPI.</p>
+
     <img src="{% static 'images/upi_qr.png' %}" alt="UPI QR" class="img-fluid my-3" style="max-width:250px;">
-    <button class="btn btn-success mt-3">Simulate Payment Success</button>
+
+    <!-- Optional: show UPI ID -->
+    <p class="fw-bold">UPI ID: yourupi@bank</p>
+
+    <!-- Simulate payment success -->
+    <form method="post" action="/ordersuccess/{{ order_id }}/">
+        {% csrf_token %}
+        <input type="hidden" name="payment_method" value="upi">
+        <button type="submit" class="btn btn-success mt-3">Simulate Payment Success</button>
+    </form>
 </div>
 {% endblock %}

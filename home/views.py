@@ -1,8 +1,9 @@
 # ✅ Updated views.py
+from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
-from .models import Product, Order,Cart,UserProfile,Category,Review,Address
+from .models import Product, Order,Cart,UserProfile,Category,Review,Address,OrderItem
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseForbidden
@@ -146,7 +147,7 @@ def productsfn(request):
     categories = Category.objects.all()
 
     # Filters
-    search_query = request.GET.get('search', '')
+    search_query = request.GET.get('q', '')
     selected_category = request.GET.get('category')
     sort_by = request.GET.get('sort')
 
@@ -240,30 +241,64 @@ def deleteproductfn(request, pid):
 
 # ------------------ CART ------------------
 
+
 @login_required
 def addtocartfn(request, pid):
+    product = get_object_or_404(Product, id=pid)
+
+    # ✅ Prevent farmer from adding their own product
+    if product.user == request.user:
+        messages.error(request, "You cannot add your own product to the cart.")
+        return redirect('/products/')
+
+    # ✅ Add to session cart: { product_id: quantity }
     cart = request.session.get('cart', {})
     cart[str(pid)] = cart.get(str(pid), 0) + 1
     request.session['cart'] = cart
+
+    messages.success(request, f"{product.name} added to your cart!")
     return redirect('/viewcart/')
+
 
 @login_required
 def viewcartfn(request):
     cart = request.session.get('cart', {})
     items = []
-    total = 0
+    subtotal = 0
 
+    # ✅ Handle quantity update request
+    if request.method == 'POST' and 'update_qty' in request.POST:
+        pid = request.POST.get('pid')
+        new_qty = int(request.POST.get('qty', 1))
+        if new_qty <= 0:
+            cart.pop(pid, None)  # Remove item if qty <= 0
+        else:
+            cart[pid] = new_qty
+        request.session['cart'] = cart
+        return redirect('/viewcart/')  # Refresh page after update
+
+    # ✅ Load cart items
     for pid, qty in cart.items():
         try:
             product = Product.objects.get(id=pid)
-            subtotal = product.price * qty
-            total += subtotal
-            items.append({'product': product, 'qty': qty, 'subtotal': subtotal})
+            item_total = product.price * qty
+            subtotal += item_total
+            items.append({'product': product, 'qty': qty, 'subtotal': item_total})
         except Product.DoesNotExist:
             continue
 
-    # Handle address form
-    if request.method == 'POST':
+    # ✅ Delivery charges
+    if subtotal == 0:
+        delivery = 0
+    elif subtotal >= 500:
+        delivery = 0
+    else:
+        delivery = 50
+
+    grand_total = subtotal + delivery
+
+    # ✅ Address form
+    if request.method == 'POST' and 'address_form' in request.POST:
         form = AddressForm(request.POST)
         if form.is_valid():
             address = form.save(commit=False)
@@ -278,9 +313,11 @@ def viewcartfn(request):
 
     return render(request, 'viewcart.html', {
         'items': items,
-        'total': total,
+        'subtotal': subtotal,
+        'delivery': delivery,
+        'grand_total': grand_total,
         'form': form,
-        'range': range(1, 11),
+        'range': range(1, 11),  # For quantity dropdown
     })
 
 
@@ -292,28 +329,44 @@ def removefromcartfn(request, pid):
     return redirect('/viewcart/')
 
 # ------------------ CHECKOUT ------------------
-
 @login_required
 def checkoutfn(request):
+    """Checkout for Cart or Buy Now session."""
     cart = request.session.get('cart', {})
-    items = []
-    total = 0
+    buy_now = request.session.get('buy_now')
 
-    for product_id, quantity in cart.items():
-        product = Product.objects.get(id=product_id)
-        item_total = product.price * quantity
-        total += item_total
-        items.append({'product': product, 'quantity': quantity, 'total': item_total})
+    # ✅ If cart has items, use it; only use buy_now if cart is empty
+    if cart:
+        source = cart
+        is_buy_now = False
+    elif buy_now:
+        source = buy_now
+        is_buy_now = True
+    else:
+        messages.error(request, "Your cart is empty. Please add items before checkout.")
+        return redirect('/products/')
 
-    addresses = Address.objects.filter(user=request.user)
+    items, subtotal = [], 0
+    for pid, qty in source.items():
+        product = get_object_or_404(Product, id=pid)
+        qty = int(qty)
+        line_total = product.price * qty
+        subtotal += line_total
+        items.append({"product": product, "quantity": qty, "total": line_total})
+
+    delivery = 0 if subtotal >= 500 or subtotal == 0 else 50
+    grand_total = subtotal + delivery
 
     context = {
-        'items': items,
-        'total_price': total,
-        'addresses': addresses,
+        "items": items,
+        "total_price": subtotal,
+        "delivery": delivery,
+        "total": grand_total,
+        "addresses": Address.objects.filter(user=request.user),
+        "is_buy_now": is_buy_now,
+        "qty_options": list(range(1, 11)),
     }
-    return render(request, 'checkout.html', context)
-
+    return render(request, "checkout.html", context)
 
 # ------------------ MY ORDERS ------------------
 @login_required
@@ -322,78 +375,174 @@ def myordersfn(request):
     return render(request, 'myorders.html', {'orders': orders})
 
 @login_required
+def orderdetailfn(request, order_id):
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+    return render(request, "orderdetail.html", {"order": order})
+
+@login_required
+def cancelorderfn(request, order_id):
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+
+    if order.status == "Pending":  # only allow cancel if not shipped
+        order.status = "Cancelled"
+        order.save()
+        messages.success(request, f"Order #{order.id} has been cancelled.")
+    else:
+        messages.error(request, f"Order #{order.id} cannot be cancelled (already {order.status}).")
+
+    return redirect('/myorders/')  # 👈 fixed (direct path)
+
+@login_required
 def placeorderfn(request):
     if request.method == "POST":
         payment_method = request.POST.get("payment_method")
         selected_address_id = request.POST.get("selected_address")
 
+        # ✅ Address validation
         if not selected_address_id:
             messages.error(request, "Please select a delivery address.")
             return redirect('/checkout/')
 
-        # fetch selected address
         address = get_object_or_404(Address, id=selected_address_id, user=request.user)
 
-        # fetch cart from session (not DB)
+        # ✅ Decide whether to use Cart or Buy Now
         cart = request.session.get('cart', {})
-        if not cart:
+        buy_now = request.session.get('buy_now')
+
+        if cart:
+            source = cart
+            is_buy_now = False
+        elif buy_now:
+            source = buy_now
+            is_buy_now = True
+        else:
             messages.error(request, "Your cart is empty.")
             return redirect('/checkout/')
 
-        items = []
-        total = 0
-        for product_id, quantity in cart.items():
-            product = get_object_or_404(Product, id=product_id)
-            item_total = product.price * quantity
-            total += item_total
-            items.append({'product': product, 'quantity': quantity, 'total': item_total})
+        subtotal = 0
 
-        # create order
+        # ✅ Prevent farmers from buying their own products
+        for pid in source.keys():
+            product = get_object_or_404(Product, id=pid)
+            if product.user == request.user:
+                return redirect(f'/product-restriction/{product.name}/')
+
+        # 1️⃣ Create the order
         order = Order.objects.create(
             user=request.user,
             address=f"{address.full_name}, {address.address_line}, {address.city}, {address.state}, {address.pincode} | Phone: {address.phone}",
             payment_method=payment_method,
-            total_amount=total
+            total_amount=0  # will update later
         )
 
-        # clear session cart
-        request.session['cart'] = {}
+        # 2️⃣ Add each item
+        for pid, qty in source.items():
+            product = get_object_or_404(Product, id=pid)
+            qty = int(qty)
+            line_total = product.price * qty
+            subtotal += line_total
 
-        # handle payment method
+            OrderItem.objects.create(
+                order=order,
+                product=product,
+                quantity=qty,
+                price=product.price
+            )
+
+        # 3️⃣ Delivery charges and total
+        delivery = 0 if subtotal == 0 or subtotal >= 500 else 50
+        grand_total = subtotal + delivery
+
+        order.total_amount = grand_total
+        order.save()
+
+        # ✅ Store order ID for payment
+        request.session['latest_order_id'] = order.id
+
+        # 4️⃣ Payment handling + session cleanup
         if payment_method == "cod":
+            if is_buy_now:
+                request.session.pop('buy_now', None)
+            else:
+                request.session.pop('cart', None)
+
+            request.session.modified = True
             messages.success(request, "Order placed successfully with Cash on Delivery!")
             return redirect(f"/ordersuccess/{order.id}/")
 
         elif payment_method == "upi":
             return redirect('/upi-payment/')
-
         elif payment_method == "card":
             return redirect('/card-payment/')
-
         elif payment_method == "netbanking":
             return redirect('/netbanking-payment/')
-
         else:
             messages.error(request, "Please select a valid payment method.")
             return redirect('/checkout/')
 
     return redirect('/')
 
+def product_restrictionfn(request, product_name):
+    return render(request, 'product_restriction.html', {'product_name': product_name})
+
 
 
 def upi_payment(request):
-    return HttpResponse("UPI Payment Page (to be implemented)")
+      return HttpResponse("upi_Payment Page (to be implemented)")
+
+
 
 def card_payment(request):
-    return HttpResponse("Card Payment Page (to be implemented)")
+    # fetch order_total from session or database
+    order_total = 1000  # example
+    return render(request, 'card_payment.html', {'order_total': order_total})
+
 
 def netbanking_payment(request):
-    return HttpResponse("Net Banking Payment Page (to be implemented)")
+     order_total = 1000  # example
+     return render(request, 'netbanking_payment.html', {'order_total': order_total})
 
 @login_required
 def ordersuccessfn(request, order_id):
     order = get_object_or_404(Order, id=order_id, user=request.user)
     return render(request, "ordersuccess.html", {"order": order})
+
+@login_required
+def buynowfn(request, product_id):
+    """Buy Now for single product with farmer restriction."""
+    product = get_object_or_404(Product, id=product_id)
+
+    # ✅ Prevent farmer from buying their own product
+    if product.user == request.user:
+        messages.error(request, "You cannot buy your own product.")
+        return redirect(f'/viewproduct/{product_id}/')  # Redirect back to product page
+
+    # ✅ Quantity from GET, default = 1
+    try:
+        qty = int(request.GET.get("qty", 1))
+    except (TypeError, ValueError):
+        qty = 1
+    qty = max(1, min(10, qty))  # Clamp between 1–10
+
+    # ✅ Save to session for checkout
+    request.session['buy_now'] = {str(product_id): qty}
+    request.session.modified = True
+
+    subtotal = product.price * qty
+    delivery = 0 if subtotal >= 500 or subtotal == 0 else 50
+    grand_total = subtotal + delivery
+
+    context = {
+        "items": [{"product": product, "quantity": qty, "total": subtotal}],
+        "total_price": subtotal,
+        "delivery": delivery,
+        "total": grand_total,
+        "addresses": Address.objects.filter(user=request.user),
+        "is_buy_now": True,
+        "qty_options": list(range(1, 11)),
+    }
+    return render(request, "checkout.html", context)
+
 
 
 
@@ -525,3 +674,89 @@ def addaddressfn(request):
     return redirect('/checkout/')
 
 
+
+# -----------------------------
+# Farmer Dashboard
+# -----------------------------
+@login_required
+def farmer_dashboardfn(request):
+    farmer = request.user
+    total_products = Product.objects.filter(user=farmer).count()
+    total_orders = FarmerOrder.objects.filter(farmer=farmer).count()
+    pending_orders = FarmerOrder.objects.filter(farmer=farmer, status='Pending').count()
+    delivered_orders = FarmerOrder.objects.filter(farmer=farmer, status='Delivered').count()
+    total_earnings = FarmerPayment.objects.filter(farmer=farmer, status='Completed').aggregate(total=models.Sum('amount'))['total'] or 0
+    notifications = Notification.objects.filter(user=farmer, is_read=False).count()
+
+    context = {
+        'total_products': total_products,
+        'total_orders': total_orders,
+        'pending_orders': pending_orders,
+        'delivered_orders': delivered_orders,
+        'total_earnings': total_earnings,
+        'notifications': notifications,
+    }
+    return render(request, 'farmer/dashboard.html', context)
+
+
+# -----------------------------
+# Farmer Orders
+# -----------------------------
+@login_required
+def farmer_ordersfn(request):
+    orders = FarmerOrder.objects.filter(farmer=request.user).order_by('-order_item__order__created_at')
+    return render(request, 'farmer/orders.html', {'orders': orders})
+
+
+# -----------------------------
+# Update Farmer Order Status
+# -----------------------------
+@login_required
+def update_farmer_order_statusfn(request, pk):
+    order = get_object_or_404(FarmerOrder, pk=pk, farmer=request.user)
+    if request.method == 'POST':
+        new_status = request.POST.get('status')
+        if new_status in dict(FarmerOrder._meta.get_field('status').choices).keys():
+            order.status = new_status
+            order.save()
+            messages.success(request, 'Order status updated successfully.')
+        return redirect('farmer_ordersfn')
+    return render(request, 'farmer/update_order.html', {'order': order})
+
+
+# -----------------------------
+# Farmer Payments
+# -----------------------------
+@login_required
+def farmer_paymentsfn(request):
+    payments = FarmerPayment.objects.filter(farmer=request.user).order_by('-created_at')
+    return render(request, 'farmer/payments.html', {'payments': payments})
+
+
+# -----------------------------
+# Farmer Notifications
+# -----------------------------
+@login_required
+def farmer_notificationsfn(request):
+    notifications = Notification.objects.filter(user=request.user).order_by('-created_at')
+    # Mark all as read
+    notifications.update(is_read=True)
+    return render(request, 'farmer/notifications.html', {'notifications': notifications})
+
+
+# -----------------------------
+# Farmer Stock Alerts
+# -----------------------------
+@login_required
+def farmer_stock_alertsfn(request):
+    alerts = StockAlert.objects.filter(user=request.user, is_alerted=False)
+    return render(request, 'farmer/stock_alerts.html', {'alerts': alerts})
+
+
+# -----------------------------
+# Farmer Products
+# -----------------------------
+@login_required
+def farmer_productsfn(request):
+    products = Product.objects.filter(user=request.user)
+    return render(request, 'farmer/products.html', {'products': products})

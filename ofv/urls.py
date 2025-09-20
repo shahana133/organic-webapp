@@ -28,6 +28,7 @@ urlpatterns = [
     path('login/',loginfn),
     path('logout/',logoutfn),
     path('deleteaccount/', deleteaccountfn),
+    
     path('addproduct/',addproductfn),
     path('products/',productsfn),
     path('viewproduct/<int:product_id>/',viewproductfn),
@@ -42,11 +43,20 @@ urlpatterns = [
 
     path('checkout/', checkoutfn),
     path('placeorder/', placeorderfn),
+    path('product-restriction/<str:product_name>/',product_restrictionfn),
+
     path('upi-payment/', upi_payment),
     path('card-payment/', card_payment),
     path('netbanking-payment/', netbanking_payment),
+
+
     path('ordersuccess/<int:order_id>/', ordersuccessfn),
     path('myorders/', myordersfn),
+    path('order/<int:order_id>/', orderdetailfn),  # order detail page
+    path('cancelorder/<int:order_id>/', cancelorderfn),  # cancel order
+
+    path('buy-now/<int:product_id>/', buynowfn),
+
 
     path('register/', registerfn),
     path('farmerprofile/', farmerprofilefn),
@@ -57,6 +67,14 @@ urlpatterns = [
     
     path('updatecartqty/<int:pid>/', updatecartqtyfn),
     path('addaddress/', addaddressfn),
+
+    path('farmerdashboard/', farmer_dashboardfn),
+    path('farmerorders/', farmer_ordersfn),
+    path('farmerorder/<int:pk>/update/', update_farmer_order_statusfn),
+    path('farmerpayments/', farmer_paymentsfn),
+    path('farmernotifications/', farmer_notificationsfn),
+    path('farmerstock-alerts/', farmer_stock_alertsfn),
+    path('farmerproducts/', farmer_productsfn),
 
 
 ]

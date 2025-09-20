@@ -42,16 +42,19 @@
             </div>
             <div class="col-md-9">
                 <h5>{{ item.product.name }} ({{ item.product.unit }})</h5>
-                <p class="text-muted mb-1">₹{{ item.product.price }} x {{ item.quantity }} = ₹{{ item.total_price }}</p>
+               <p class="text-muted mb-1">
+                ₹{{ item.product.price }} x {{ item.qty }} = ₹{{ item.subtotal }}
+               </p>
 
-                <form method="post" action="/updatecartqty/{{ item.product.id }}/" class="d-inline">
-                    {% csrf_token %}
-                    <select name="qty" onchange="this.form.submit()" class="form-select form-select-sm w-auto d-inline">
-                        {% for i in range %}
-                            <option value="{{ i }}" {% if item.quantity == i %}selected{% endif %}>{{ i }}</option>
-                        {% endfor %}
-                    </select>
+               <form method="post" action="/updatecartqty/{{ item.product.id }}/" class="d-inline">
+                   {% csrf_token %}
+                   <select name="qty" onchange="this.form.submit()" class="form-select form-select-sm w-auto d-inline">
+                       {% for i in range %}
+                          <option value="{{ i }}" {% if item.qty == i %}selected{% endif %}>{{ i }}</option>
+                       {% endfor %}
+                  </select>
                 </form>
+
 
                 <a href="/removefromcart/{{ item.product.id }}/" class="btn btn-outline-danger btn-sm mt-2">Remove</a>
             </div>
@@ -59,20 +62,27 @@
         {% endfor %}
 
         <!-- Price Summary BELOW the cart items -->
-        <div class="cart-summary mt-4">
-            <h5 class="fw-bold mb-3">Price Details</h5>
-            <p class="d-flex justify-content-between">
-                <span>Subtotal</span> <span>₹{{ total }}</span>
-            </p>
-            <p class="d-flex justify-content-between">
-                <span>Delivery Charges</span> <span class="text-success">Free</span>
-            </p>
-            <hr>
-            <p class="d-flex justify-content-between fw-bold">
-                <span>Total Amount</span> <span>₹{{ total }}</span>
-            </p>
-            <a href="/checkout/" class="btn btn-success w-100 mt-3">Proceed to Checkout</a>
-        </div>
+       <div class="cart-summary mt-4">
+          <h5 class="fw-bold mb-3">Price Details</h5>
+          <p class="d-flex justify-content-between">
+                 <span>Subtotal</span> <span>₹{{ subtotal }}</span>
+          </p>
+          <p class="d-flex justify-content-between mb-2">
+              <span>Delivery Charges</span>
+              {% if delivery == 0 %}
+                  <span class="text-success">Free</span>
+              {% else %}
+                  <span>₹{{ delivery }}</span>
+              {% endif %}
+          </p>
+
+          <hr>
+          <p class="d-flex justify-content-between fw-bold">
+              <span>Total Amount</span> <span>₹{{ grand_total }}</span>
+          </p>
+          <a href="/checkout/" class="btn btn-success w-100 mt-3">Proceed to Checkout</a>
+    </div>
+
 
     {% else %}
         <div class="alert alert-info">Your cart is empty. <a href="/">Start shopping</a>.</div>

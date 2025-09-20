@@ -1,29 +1,72 @@
 {% extends 'base.html' %}
 {% block content %}
+<style>
+  body {
+    background-color: #e8f5e9; /* Light green background */
+  }
+  .success-card {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0px 4px 12px rgba(0,0,0,0.1);
+    padding: 40px;
+    max-width: 750px;
+    margin: auto;
+  }
+  .success-icon {
+    font-size: 70px;
+    color: #2e7d32;
+  }
+  .success-title {
+    color: #2e7d32;
+    font-weight: bold;
+  }
+  .order-items-title {
+    font-weight: bold;
+    color: #1b5e20;
+    margin-bottom: 10px;
+  }
+  .list-group-item {
+    border: none;
+    border-bottom: 1px solid #ddd;
+  }
+</style>
+
 <div class="container py-5 text-center">
-  <h2 class="text-success fw-bold mb-3">🎉 Payment Successful!</h2>
-  <p class="mb-4">Thank you for your purchase. Your order has been placed successfully.</p>
+  <div class="success-card">
+    <!-- 🎉 Success Icon -->
+    <div class="success-icon mb-3">✅</div>
+    <h2 class="success-title mb-3">Order Placed Successfully!</h2>
+    <p class="mb-4">Thank you for shopping with us. Your order has been placed and is being processed.</p>
 
-  <h5 class="mt-4">Order Summary</h5>
-  <p><strong>Address:</strong> {{ order.address }}</p>
-  <p><strong>Payment Method:</strong> {{ order.payment_method }}</p>
-  <p><strong>Total Paid:</strong> ₹{{ order.total_amount|floatformat:2 }}</p>
+    <!-- 🧾 Order Summary -->
+    <h5 class="mt-4">Order Summary</h5>
+    <p><strong>Order ID:</strong> #{{ order.id }}</p>
+    <p><strong>Placed On:</strong> {{ order.created_at|date:"M d, Y H:i" }}</p>
+    <p><strong>Delivery Address:</strong> {{ order.address }}</p>
+    <p><strong>Payment Method:</strong> {{ order.payment_method }}</p>
+    <p><strong>Total Paid:</strong> ₹{{ order.total_amount|floatformat:2 }}</p>
 
-  <!-- Ordered Products -->
-  <div class="mt-4 text-start d-inline-block">
-    <h5 class="fw-bold">Products</h5>
-    <ul class="list-group">
-      {% for item in order.items.all %}
-        <li class="list-group-item d-flex justify-content-between align-items-center">
-          {{ item.product.name }} (x{{ item.quantity }})
-          <span>₹{{ item.price|floatformat:2 }}</span>
-        </li>
-      {% empty %}
-        <li class="list-group-item">No products found for this order.</li>
-      {% endfor %}
-    </ul>
+    <!-- 🛒 Ordered Items -->
+    <div class="mt-4 text-start d-inline-block w-100">
+      <h5 class="order-items-title">Items in your Order</h5>
+      <ul class="list-group">
+        {% for item in order.orderitem_set.all %}
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            <div>
+              <strong>{{ item.product.name }}</strong><br>
+              <small>Qty: {{ item.quantity }}</small>
+            </div>
+            <span class="fw-bold">₹{{ item.price|floatformat:2 }}</span>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <!-- 🔘 Navigation Buttons -->
+    <div class="mt-4">
+      <a href="/" class="btn btn-success px-4 py-2 rounded-pill">Back to Home</a>
+      <a href="/myorders/" class="btn btn-outline-success px-4 py-2 rounded-pill">View My Orders</a>
+    </div>
   </div>
-
-  <a href="/" class="btn btn-outline-success mt-4">Back to Home</a>
 </div>
 {% endblock %}
