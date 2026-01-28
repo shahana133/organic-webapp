@@ -1,32 +1,107 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
+{% load static %}
+
 {% block content %}
 <div class="container mt-4">
-  <h2>Farmer Dashboard</h2>
-  <div class="row mt-3">
-    <div class="col-md-3">
-      <div class="card p-3 shadow">
-        <h5>Total Products</h5>
-        <p>{{ total_products }}</p>
-      </div>
+    <h2 class="mb-4 text-center">🌾 Farmer Dashboard</h2>
+
+    <!-- Dashboard Cards -->
+    <div class="row text-center">
+        <div class="col-md-3 mb-3">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <h5><i class="bi bi-box-seam text-primary"></i> Total Products</h5>
+                    <h3>{{ total_products }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <h5><i class="bi bi-cart4 text-success"></i> Total Orders</h5>
+                    <h3>{{ total_orders }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <h5><i class="bi bi-hourglass-split text-warning"></i> Pending</h5>
+                    <h3>{{ pending_orders }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <h5><i class="bi bi-check2-circle text-success"></i> Delivered</h5>
+                    <h3>{{ delivered_orders }}</h3>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="col-md-3">
-      <div class="card p-3 shadow">
-        <h5>Total Orders</h5>
-        <p>{{ total_orders }}</p>
-      </div>
+
+    <!-- Earnings -->
+    <div class="card shadow-sm border-0 mt-4">
+        <div class="card-body text-center">
+            <h4>Total Earnings: <span class="text-success">₹{{ total_earnings }}</span></h4>
+        </div>
     </div>
-    <div class="col-md-3">
-      <div class="card p-3 shadow">
-        <h5>Pending Orders</h5>
-        <p>{{ pending_orders }}</p>
-      </div>
+
+    <!-- Customers -->
+    <div class="card shadow-sm border-0 mt-4">
+        <div class="card-body">
+            <h5>👥 Customers who bought your products:</h5>
+            <ul class="list-group">
+                {% for customer in customers %}
+                    <li class="list-group-item">{{ customer }}</li>
+                {% empty %}
+                    <li class="list-group-item text-muted">No customers yet.</li>
+                {% endfor %}
+            </ul>
+        </div>
     </div>
-    <div class="col-md-3">
-      <div class="card p-3 shadow">
-        <h5>Total Earnings</h5>
-        <p>₹{{ total_earnings }}</p>
-      </div>
+
+    <!-- Notifications -->
+    <div class="card shadow-sm border-0 mt-4">
+        <div class="card-body text-center">
+            <h5>🔔 Unread Notifications: <span class="text-danger">{{ unread_notifications }}</span></h5>
+        </div>
     </div>
-  </div>
+    <div class="card shadow-sm border-0 mt-2">
+        <div class="card-body">
+            <h5>🔔 All Notifications:</h5>
+            <ul class="list-group">
+                {% for n in notifications %}
+                    <li class="list-group-item">
+                        {{ n.message }} - <small class="text-muted">{{ n.created_at|date:"d M Y H:i" }}</small>
+                    </li>
+                {% empty %}
+                    <li class="list-group-item text-muted">No notifications yet.</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <!-- Stock Alerts -->
+    <div class="card shadow-sm border-0 mt-4">
+        <div class="card-body text-center">
+            <h5>⚠️ Stock Alerts: {{ stock_alert_count }}</h5>
+        </div>
+        <div class="card-body">
+            <ul class="list-group">
+                {% for alert in stock_alerts %}
+                    <li class="list-group-item">
+                        {{ alert.product.name }} stock below {{ alert.threshold }}!
+                    </li>
+                {% empty %}
+                    <li class="list-group-item text-muted">No stock alerts yet.</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
 </div>
+
+<!-- Bootstrap Icons CDN -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 {% endblock %}

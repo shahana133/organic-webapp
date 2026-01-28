@@ -24,22 +24,31 @@
             <p><strong>Payment:</strong> {{ order.payment_method }}</p>
             <p><strong>Address:</strong> {{ order.address }}</p>
 
-            <!-- Products -->
+            <!-- Products List -->
             <h5 class="mt-4 mb-3">Products</h5>
             <ul class="list-group">
-                {% for product in order.products.all %}
+                {% for item in order.orderitem_set.all %}
                     <li class="list-group-item d-flex align-items-center justify-content-between">
                         <div class="d-flex align-items-center">
-                            {% if product.image %}
-                                <img src="{{ product.image.url }}" alt="{{ product.name }}"
+                            {% if item.product.image %}
+                                <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}"
                                      class="rounded me-3" style="width:60px; height:60px; object-fit:cover;">
                             {% else %}
                                 <img src="{% static 'images/default-product.png' %}" alt="No Image"
                                      class="rounded me-3" style="width:60px; height:60px; object-fit:cover;">
                             {% endif %}
-                            <strong>{{ product.name }}</strong>
+                            <strong>{{ item.product.name }}</strong>
                         </div>
-                        <span class="fw-bold">₹{{ product.price }}</span>
+                        <div class="d-flex align-items-center">
+                            <span class="fw-bold me-3">₹{{ item.price }}</span>
+
+                            <!-- Review Button only if Delivered -->
+                            {% if order.status == "Delivered" %}
+                                {% if not item.review_set.exists %}
+                                    <a href="/addreview/{{ item.id }}/" class="btn btn-sm btn-outline-primary">Add Review</a>
+                                {% endif %}
+                            {% endif %}
+                        </div>
                     </li>
                 {% empty %}
                     <li class="list-group-item text-muted">No products found in this order.</li>

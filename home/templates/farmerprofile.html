@@ -27,19 +27,24 @@
 
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h2>👨‍🌾 Farmer Profile</h2>
-    <a href="/logout/" class="btn btn-outline-danger">🚪 Logout</a>
+    {% if is_owner %}
+      <a href="/logout/" class="btn btn-outline-danger">🚪 Logout</a>
+    {% endif %}
   </div>
 
   <!-- Profile Info Section -->
   <div class="bg-light p-4 rounded border mb-4 d-flex align-items-center gap-4">
-    <img src="{% if request.user.userprofile.image %}{{ request.user.userprofile.image.url }}{% else %}{% static 'images/default_profile.png' %}{% endif %}" class="profile-photo" alt="Profile Photo">
+    <img src="{% if profile.image %}{{ profile.image.url }}{% else %}{% static 'images/default_profile.png' %}{% endif %}"
+         class="profile-photo" alt="Profile Photo">
+
     <div>
-      <h4 class="mb-1">Hello, <span class="text-primary">{{ request.user.username }}</span></h4>
-      <p class="mb-0"><strong>📞 Phone:</strong> {{ request.user.userprofile.phone }}</p>
+      <h4 class="mb-1">Hello, <span class="text-primary">{{ user.username }}</span></h4>
+      <p class="mb-0"><strong>📞 Phone:</strong> {{ profile.phone }}</p>
     </div>
   </div>
 
-  <!-- Profile Update Form -->
+  <!-- Only show edit form if it's your own profile -->
+  {% if is_owner %}
   <div class="card mb-4">
     <div class="card-body">
       <h5 class="card-title">✏️ Update Profile</h5>
@@ -49,19 +54,19 @@
         <div class="row g-3">
           <div class="col-md-4">
             <label class="form-label">Username</label>
-            <input type="text" name="username" class="form-control" value="{{ request.user.username }}">
+            <input type="text" name="username" class="form-control" value="{{ user.username }}">
           </div>
           <div class="col-md-4">
             <label class="form-label">First Name</label>
-            <input type="text" name="first_name" class="form-control" value="{{ request.user.first_name }}">
+            <input type="text" name="first_name" class="form-control" value="{{ user.first_name }}">
           </div>
           <div class="col-md-4">
             <label class="form-label">Last Name</label>
-            <input type="text" name="last_name" class="form-control" value="{{ request.user.last_name }}">
+            <input type="text" name="last_name" class="form-control" value="{{ user.last_name }}">
           </div>
           <div class="col-md-6">
             <label class="form-label">Phone</label>
-            <input type="text" name="phone" class="form-control" value="{{ request.user.userprofile.phone }}">
+            <input type="text" name="phone" class="form-control" value="{{ profile.phone }}">
           </div>
           <div class="col-md-6">
             <label class="form-label">Profile Photo</label>
@@ -82,9 +87,10 @@
       <button type="submit" class="btn btn-outline-danger">🗑️ Delete My Account</button>
     </form>
   </div>
+  {% endif %}
 
-  <!-- My Products -->
-  <h3 class="mb-3">📦 My Products</h3>
+  <!-- Products -->
+  <h3 class="mb-3">📦 {{ user.username }}'s Products</h3>
   <div class="row">
     {% if products %}
       {% for product in products %}
@@ -95,20 +101,25 @@
               <h5 class="card-title">{{ product.name }}</h5>
               <p class="card-text">{{ product.details }}</p>
               <p><strong>₹{{ product.price }}</strong></p>
-              <a href="/editproduct/{{ product.id }}/" class="btn btn-sm btn-primary">✏️ Edit</a>
-              <a href="/deleteproduct/{{ product.id }}/" class="btn btn-sm btn-danger">🗑️ Delete</a>
+
+              {% if is_owner %}
+                <a href="/editproduct/{{ product.id }}/" class="btn btn-sm btn-primary">✏️ Edit</a>
+                <a href="/deleteproduct/{{ product.id }}/" class="btn btn-sm btn-danger">🗑️ Delete</a>
+              {% endif %}
             </div>
           </div>
         </div>
       {% endfor %}
     {% else %}
-      <p>No products found. Start by adding one!</p>
+      <p>No products found.</p>
     {% endif %}
   </div>
 
+  {% if is_owner %}
   <div class="text-center mt-4">
     <a href="/addproduct/" class="btn btn-success btn-lg">➕ Add Product</a>
   </div>
+  {% endif %}
 </div>
 
 {% endblock %}

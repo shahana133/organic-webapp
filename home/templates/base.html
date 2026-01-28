@@ -56,35 +56,62 @@
                <button class="btn btn-success" type="submit">Search</button>
            </form>
      </div>
-          <div class="d-flex align-items-center">
+
+        <!-- Right Side: Profile Icon -->
+        <ul class="navbar-nav ms-auto">
+            {% if user.is_authenticated %}
+                {% if user.userprofile.role == 'farmer' and request.path == '/products/' %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="/farmerprofile/{{ request.user.id }}/"><i class="fas fa-user-circle"></i>🧑‍🌾</a>
+                    </li>
+                {% elif user.userprofile.role == 'customer' and request.path == '/products/' %}
+                    <li class="nav-item">
+                       <a class="nav-link" href="/customerprofile/">
+                        <i class="fas fa-user-circle" style="font-size: 20px;"></i> 
+                         <span style="font-size: 20px;">👤</span>
+                       </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/viewcart/">
+                            <i class="fas fa-shopping-cart" style="font-size: 20px;"></i>
+                            <span style="font-size: 20px;"> 🛒</span>
+                        </a>
+                        </li>
+
+                        <li class="nav-item">
+                        <a class="nav-link" href="/myorders/">
+                            <i class="fas fa-box" style="font-size: 20px;"></i>
+                            <span style="font-size: 20px;"> 📦</span>
+                        </a>
+                        </li>
+                {% endif %}
+            {% endif %}
+            {% if user.is_authenticated and user.userprofile.role == 'farmer' and request.path == '/products/' %}
+                <li class="nav-item dropdown me-2">
+                  <a class="nav-link dropdown-toggle" href="#" id="farmerMenu" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                      <i class="fas fa-tractor"></i> Farmer
+                  </a>
+                    <ul class="dropdown-menu" aria-labelledby="farmerMenu">
+                        <li><a class="dropdown-item" href="/farmerdashboard">Dashboard</a></li>
+                        <li><a class="dropdown-item" href="/farmerorders">Orders</a></li>
+                        <li><a class="dropdown-item" href="/farmerproducts">My Products</a></li>
+                        <li><a class="dropdown-item" href="/farmerpayments">Payments</a></li>
+                        <li><a class="dropdown-item" href="/farmernotifications">Notifications</a></li>
+                        <li><a class="dropdown-item" href="/farmerstock-alerts">Stock Alerts</a></li>
+                    </ul>
+                </li>
+            {% endif %}
+           <div class="d-flex align-items-center">
               {% if user.is_authenticated %}
                 <a href="/logout/" class="btn btn-outline-danger ms-2">Logout</a>
               {% else %}
                 <a href="/login/" class="btn btn-outline-success ms-2">Login</a>
                {% endif %}
            </div>
-        <!-- Right Side: Profile Icon -->
-        <ul class="navbar-nav ms-auto">
-            {% if user.is_authenticated %}
-                {% if user.userprofile.role == 'farmer' %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="/farmerprofile/"><i class="fas fa-user-circle"></i>🧑‍🌾</a>
-                    </li>
-                     <li class="nav-item">
-                        <a class="nav-link" href="/viewcart/"><i class="fas fa-user-circle"></i> 🛒Cart</a>
-                    </li>
-                {% elif user.userprofile.role == 'customer' %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="/customerprofile/"><i class="fas fa-user-circle"></i> 👤 </a>
-                    </li>
-                     <li class="nav-item">
-                        <a class="nav-link" href="/viewcart/"><i class="fas fa-user-circle"></i> 🛒Cart </a>
-                    </li>
-                {% endif %}
-            {% endif %}
         </ul>
     </div>
 </nav>
+   
 
 <!-- ✅ Main Content Block -->
 <main class="py-4">

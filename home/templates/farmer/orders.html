@@ -1,13 +1,15 @@
 {% extends 'base.html' %}
+
 {% block content %}
 <div class="container mt-4">
   <h2>My Orders</h2>
+
   <table class="table table-bordered mt-3">
-    <thead>
+    <thead class="table-light">
       <tr>
         <th>Order ID</th>
         <th>Product</th>
-        <th>Qty</th>
+        <th>Quantity</th>
         <th>Status</th>
         <th>Action</th>
       </tr>
@@ -19,7 +21,23 @@
         <td>{{ order.order_item.product.name }}</td>
         <td>{{ order.order_item.quantity }}</td>
         <td>{{ order.status }}</td>
-        <td><a href="{% url 'update_farmer_order_statusfn' order.id %}" class="btn btn-sm btn-primary">Update</a></td>
+        <td>
+          <form method="post" action="/farmerorders/">
+            {% csrf_token %}
+            <input type="hidden" name="farmer_order_id" value="{{ order.id }}">
+            <select name="status" class="form-select mb-1">
+              <option value="Pending" {% if order.status == "Pending" %}selected{% endif %}>Pending</option>
+              <option value="Shipped" {% if order.status == "Shipped" %}selected{% endif %}>Shipped</option>
+              <option value="Delivered" {% if order.status == "Delivered" %}selected{% endif %}>Delivered</option>
+              <option value="Cancelled" {% if order.status == "Cancelled" %}selected{% endif %}>Cancelled</option>
+            </select>
+            <button type="submit" class="btn btn-success btn-sm">Update</button>
+          </form>
+        </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="5" class="text-center">No orders found.</td>
       </tr>
       {% endfor %}
     </tbody>

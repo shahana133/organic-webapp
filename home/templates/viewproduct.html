@@ -1,100 +1,98 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block title %}{{ product.name }}{% endblock %}
+
 {% block content %}
 <div class="container my-5">
 
-  <!-- Product Section -->
-  <div class="row">
-     <a href="/products/" class="btn btn-outline-success my-3">
-         ← Back to Products
-</a>
+  <!-- Back Button -->
+  <a href="/products/" class="btn btn-outline-success mb-4">← Back to Products</a>
 
-    <div class="col-md-5">
+  <!-- Product Section -->
+  <div class="row align-items-center">
+    <div class="col-md-5 text-center">
       {% if product.image %}
-        <img src="{{ product.image.url }}" class="img-fluid rounded shadow" alt="{{ product.name }}">
+        <img src="{{ product.image.url }}" class="img-fluid rounded shadow-sm" alt="{{ product.name }}">
       {% else %}
-        <img src="{% static 'images/placeholder.png' %}" class="img-fluid rounded shadow" alt="No image available">
+        <img src="{% static 'images/placeholder.png' %}" class="img-fluid rounded shadow-sm" alt="No image available">
       {% endif %}
     </div>
+
     <div class="col-md-7">
       <h2 class="fw-bold">{{ product.name }}</h2>
-      <p class="text-muted">{{ product.details }}</p>
-      <h4 class="text-success">₹{{ product.price }}</h4>
-      <p><strong>Category:</strong> {{ product.ctgry.name }}</p>
+
+      {% if product.details %}
+        <p class="text-muted mb-3">{{ product.details }}</p>
+      {% endif %}
+
+      <h4 class="text-success mb-3">₹{{ product.price }} / {{ product.unit }}</h4>
+
+      <p><strong>Category:</strong> {{ product.ctgry.name|default:"Not Assigned" }}</p>
+
       <p><strong>Average Rating:</strong>
         {% with avg=product.average_rating|floatformat:1 %}
           {{ avg }}/5 ★
         {% endwith %}
       </p>
 
-      {% if user.is_authenticated %}
-              <div class="card-footer d-grid gap-2">
-    <!-- Add to Cart -->
-                    <a href="/addtocart/{{ product.id }}/" 
-                        class="btn btn-warning fw-bold text-dark">
-                          Add to Cart
-                   </a>
-
-    <!-- Buy Now -->
-                    <a href="/buy-now/{{ product.id }}/" 
-                        class="btn btn-success fw-bold">
-                             Buy Now
-                     </a>
-              </div>
-
-
-      {% else %}
-        <a href="/login/?next=/addtocart/{{ product.id }}/" class="btn btn-warning mt-2">Login to Add to Cart</a>
+      {% if product.user %}
+        <p>
+          <strong>👨‍🌾 Farmer:</strong>
+          <a href="/farmerprofile/{{ product.user.id }}/" class="text-decoration-none text-success fw-bold">
+            {{ product.user.username }}
+          </a>
+        </p>
       {% endif %}
     </div>
   </div>
 
+  {% if user.is_authenticated and user.userprofile.role == 'customer' %}
+    <div class="mt-4 text-center">
+      <a href="/addtocart/{{ product.id }}/" class="btn btn-outline-success btn-lg" style="width: 200px;">
+        🛒 Add to Cart
+      </a>
+    </div>
+  {% endif %}
+
   <hr class="my-5">
 
-  <!-- Customer Reviews -->
-  <h4 class="mt-4">Customer Reviews</h4>
-  {% if reviews %}
-    <div class="mt-3">
-      {% for review in reviews %}
-        <div class="border rounded p-3 mb-3 bg-light shadow-sm">
-          <strong>{{ review.user.username }}</strong>
-          <span class="text-warning">({{ review.rating }}/5 ★)</span><br>
-          <small class="text-muted">{{ review.created_at|date:"M d, Y H:i" }}</small>
-          <p class="mb-0 mt-2">{{ review.comment }}</p>
-        </div>
-      {% endfor %}
-    </div>
-  {% else %}
-    <p class="text-muted">No reviews yet. Be the first to review!</p>
-  {% endif %}
+  <!-- Reviews Section -->
+  <div class="row">
+    <div class="col-md-8 mx-auto">
+      <h4 class="fw-bold mb-4 text-success">Customer Reviews</h4>
 
-  <!-- Review Form -->
-  {% if user.is_authenticated %}
-    <hr>
-    <h5 class="mt-4">Leave a Review</h5>
-    <form action="/addreview/{{ product.id }}/" method="post">
-      {% csrf_token %}
-      <div class="mb-3">
-        <label for="rating" class="form-label">Rating (1–5)</label>
-        <select name="rating" id="rating" class="form-select" required>
-          <option value="" disabled selected>Select</option>
-          {% for i in "12345" %}
-            <option value="{{ i }}">{{ i }}</option>
-          {% endfor %}
-        </select>
-      </div>
-      <div class="mb-3">
-        <label for="comment" class="form-label">Comment</label>
-        <textarea name="comment" id="comment" class="form-control" rows="3" required></textarea>
-      </div>
-      <button type="submit" class="btn btn-success">Submit Review</button>
-    </form>
-  {% else %}
-    <p class="text-muted mt-3">
-      You must <a href="/login/?next=/viewproduct/{{ product.id }}/">login</a> to leave a review.
-    </p>
-  {% endif %}
+      {% if reviews %}
+        {% for review in reviews %}
+          <div class="card mb-3 border-0 shadow-sm">
+            <div class="card-body bg-light rounded-3">
+
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <h6 class="fw-bold mb-0">{{ review.user.username }}</h6>
+                <span class="badge bg-success">★ {{ review.rating }}/5</span>
+              </div>
+
+              <p class="text-secondary mb-1">{{ review.comment }}</p>
+
+              {% if review.review_image %}
+              <div class="mt-3">
+                <a href="{{ review.review_image.url }}" target="_blank">
+                  <img src="{{ review.review_image.url }}"
+                       alt="Review Image"
+                       style="max-width: 360px; width:100%; height:auto; border-radius:8px;"/>
+                </a>
+              </div>
+              {% endif %}
+
+              <small class="text-muted d-block mt-3">Posted on {{ review.created_at|date:"M d, Y" }}</small>
+
+            </div>
+          </div>
+        {% endfor %}
+      {% else %}
+        <div class="alert alert-secondary text-center">No reviews yet.</div>
+      {% endif %}
+    </div>
+  </div>
 
 </div>
 {% endblock %}

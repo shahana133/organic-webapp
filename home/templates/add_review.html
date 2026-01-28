@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Write a Review{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+
+      <div class="card shadow border-0">
+        <div class="card-header bg-success text-white">
+          <h4 class="mb-0">Write a Review for "{{ order_item.product.name }}"</h4>
+        </div>
+
+        <div class="card-body bg-light">
+          
+          <!-- IMPORTANT: enctype added -->
+          <form method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
+            {% csrf_token %}
+
+            <!-- Rating -->
+            <div class="mb-3">
+              <label for="rating" class="form-label fw-bold">Rating</label>
+              <select class="form-select shadow-sm" id="rating" name="rating" required>
+                <option value="" selected disabled>Select rating</option>
+                <option value="1">1 ★ - Poor</option>
+                <option value="2">2 ★★ - Fair</option>
+                <option value="3">3 ★★★ - Good</option>
+                <option value="4">4 ★★★★ - Very Good</option>
+                <option value="5">5 ★★★★★ - Excellent</option>
+              </select>
+            </div>
+
+            <!-- Comment -->
+            <div class="mb-3">
+              <label for="comment" class="form-label fw-bold">Your Review</label>
+              <textarea class="form-control shadow-sm" id="comment" name="comment" rows="4" placeholder="Write your review here..." required></textarea>
+            </div>
+
+            <!-- ⬆⬆ NEW: Upload Photo -->
+            <div class="mb-3">
+              <label for="review_image" class="form-label fw-bold">Upload Photo (optional)</label>
+              <input type="file" name="review_image" id="review_image" class="form-control shadow-sm">
+            </div>
+
+            <!-- Buttons -->
+            <div class="d-flex justify-content-between align-items-center mt-4">
+              <a href="/order/{{ order_item.order.id }}/" class="btn btn-outline-secondary px-4">
+                ← Cancel
+              </a>
+              <button type="submit" class="btn btn-success fw-bold px-4">
+                Submit Review
+              </button>
+            </div>
+
+          </form>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}

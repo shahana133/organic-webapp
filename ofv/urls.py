@@ -32,7 +32,7 @@ urlpatterns = [
     path('addproduct/',addproductfn),
     path('products/',productsfn),
     path('viewproduct/<int:product_id>/',viewproductfn),
-    path('addreview/<int:product_id>/',addreviewfn),
+    path('addreview/<int:order_item_id>/',addreviewfn),
     path('myproducts/',myproductsfn),
     path('editproduct/<int:pid>/',editproductfn),
     path('deleteproduct/<int:pid>/',deleteproductfn),
@@ -52,6 +52,7 @@ urlpatterns = [
 
     path('ordersuccess/<int:order_id>/', ordersuccessfn),
     path('myorders/', myordersfn),
+    path('orderhistory/',orderhistoryfn),
     path('order/<int:order_id>/', orderdetailfn),  # order detail page
     path('cancelorder/<int:order_id>/', cancelorderfn),  # cancel order
 
@@ -59,7 +60,7 @@ urlpatterns = [
 
 
     path('register/', registerfn),
-    path('farmerprofile/', farmerprofilefn),
+    path('farmerprofile/<int:pk>/', farmerprofilefn),
     path('customerprofile/', customerprofilefn),
 
     path('changepassword/', changepasswordfn),
@@ -70,13 +71,22 @@ urlpatterns = [
 
     path('farmerdashboard/', farmer_dashboardfn),
     path('farmerorders/', farmer_ordersfn),
-    path('farmerorder/<int:pk>/update/', update_farmer_order_statusfn),
     path('farmerpayments/', farmer_paymentsfn),
     path('farmernotifications/', farmer_notificationsfn),
     path('farmerstock-alerts/', farmer_stock_alertsfn),
     path('farmerproducts/', farmer_productsfn),
 
+    path('customernotifications/', customer_notificationsfn),
 
+    path('admin-dashboard/', admin_dashboard),
+    path('approve-product/<int:product_id>/', approve_product),
+    path('update-order/<int:order_id>/<str:status>/', update_order_status),
+    path('toggle-user/<int:user_id>/', toggle_user_status),
+
+    path('farmerhelpcenter/', helpcenterfn),
+    path('customerhelpcenter/', helpcenterfn),
+
+    
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

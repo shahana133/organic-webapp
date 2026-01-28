@@ -2,7 +2,10 @@
 {% block content %}
 <div class="container mt-5">
     <h2 class="mb-4">My Products</h2>
+
+/   <!-- Button to add new product -->
     <a href="/addproduct/" class="btn btn-success mb-3">Add New Product</a>
+
     {% if products %}
         <div class="row">
             {% for p in products %}
@@ -12,8 +15,12 @@
                         <div class="card-body">
                             <h5 class="card-title">{{ p.name }}</h5>
                             <p class="card-text">₹{{ p.price }}</p>
+
+                            <!-- Only farmer actions -->
                             <a href="/editproduct/{{ p.id }}/" class="btn btn-warning btn-sm">Edit</a>
                             <a href="/deleteproduct/{{ p.id }}/" class="btn btn-danger btn-sm">Delete</a>
+
+                            <!-- ✅ Removed Add to Cart and Buy Now buttons -->
                         </div>
                     </div>
                 </div>

@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container my-5">
+  <h2 class="mb-4">Mini Admin Dashboard</h2>
+
+  <!-- Products Section -->
+  <div class="mb-5">
+    <h3>Products</h3>
+    <div class="row">
+      {% for product in products %}
+      <div class="col-md-4">
+        <div class="card mb-3 shadow-sm">
+          <div class="card-body">
+            <h5 class="card-title">{{ product.name }}</h5>
+            <p class="card-text">Price: ₹{{ product.price }}</p>
+            {% if not product.approved %}
+            <a href="/approve-product/{{ product.id }}/" class="btn btn-success btn-sm">Approve</a>
+            {% else %}
+            <span class="badge bg-success">Approved</span>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      {% empty %}
+      <p>No products found</p>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Orders Section -->
+  <div class="mb-5">
+    <h3>Orders</h3>
+    <div class="row">
+      {% for order in orders %}
+      <div class="col-md-4">
+        <div class="card mb-3 shadow-sm">
+          <div class="card-body">
+            <h5 class="card-title">Order #{{ order.id }}</h5>
+            <p class="card-text">Status: {{ order.status }}</p>
+            {% if order.status != 'Delivered' %}
+            <a href="/update-order/{{ order.id }}/Shipped/" class="btn btn-primary btn-sm">Mark Shipped</a>
+            <a href="/update-order/{{ order.id }}/Delivered/" class="btn btn-success btn-sm">Mark Delivered</a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      {% empty %}
+      <p>No orders found</p>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Farmers Section -->
+  <div class="mb-5">
+    <h3>Farmers</h3>
+    <div class="row">
+      {% for farmer in farmers %}
+      <div class="col-md-3">
+        <div class="card mb-3 shadow-sm">
+          <div class="card-body">
+            <h5 class="card-title">{{ farmer.user.username }}</h5>
+            {% if farmer.user.is_active %}
+            <span class="badge bg-success">Active</span>
+            <a href="/toggle-user/{{ farmer.user.id }}/" class="btn btn-danger btn-sm mt-2">Block</a>
+            {% else %}
+            <span class="badge bg-danger">Blocked</span>
+            <a href="/toggle-user/{{ farmer.user.id }}/" class="btn btn-success btn-sm mt-2">Unblock</a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      {% empty %}
+      <p>No farmers found</p>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Customers Section -->
+  <div class="mb-5">
+    <h3>Customers</h3>
+    <div class="row">
+      {% for customer in customers %}
+      <div class="col-md-3">
+        <div class="card mb-3 shadow-sm">
+          <div class="card-body">
+            <h5 class="card-title">{{ customer.user.username }}</h5>
+            {% if customer.user.is_active %}
+            <span class="badge bg-success">Active</span>
+            <a href="/toggle-user/{{ customer.user.id }}/" class="btn btn-danger btn-sm mt-2">Block</a>
+            {% else %}
+            <span class="badge bg-danger">Blocked</span>
+            <a href="/toggle-user/{{ customer.user.id }}/" class="btn btn-success btn-sm mt-2">Unblock</a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      {% empty %}
+      <p>No customers found</p>
+      {% endfor %}
+    </div>
+  </div>
+
+</div>
+{% endblock %}

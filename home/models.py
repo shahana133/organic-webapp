@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
+from django.db.models import Sum, Count
+
 
 class Category(models.Model):
     name = models.CharField(max_length=100)
@@ -28,6 +30,7 @@ class Product(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)  # Seller
     created_at = models.DateTimeField(auto_now_add=True)
     unit = models.CharField(max_length=10, choices=UNIT_CHOICES, default='kg')
+    stock = models.PositiveIntegerField(default=0)
 
     def average_rating(self):
         reviews = self.review_set.all()
@@ -55,12 +58,17 @@ class Review(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     rating = models.IntegerField()
     comment = models.TextField()
+    review_image = models.ImageField(upload_to='review_photos/', blank=True, null=True) 
     created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.product.name} review by {self.user.username}"
 
 class Order(models.Model):
     STATUS_CHOICES = [
         ('Pending', 'Pending'),
         ('Shipped', 'Shipped'),
+        ('Out for Delivery', 'Out for Delivery'),
         ('Delivered', 'Delivered'),
         ('Cancelled', 'Cancelled'),
     ]
@@ -73,7 +81,7 @@ class Order(models.Model):
     total_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
     def __str__(self):
-        return f"Order #{self.id} - {self.user.username}"
+        return f"Order #{self.id} - {self.user.username}  ({self.status})"
 
 class OrderItem(models.Model):
     order = models.ForeignKey('Order', on_delete=models.CASCADE)
@@ -94,7 +102,7 @@ class Cart(models.Model):
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    role = models.CharField(max_length=10, choices=[('farmer', 'Farmer'), ('customer', 'Customer')])
+    role = models.CharField(max_length=10, choices=[('farmer', 'Farmer'), ('customer', 'Customer'),('admin','admin')])
     phone = models.CharField(max_length=15, blank=True, null=True)
     image = models.ImageField(upload_to='profiles/', blank=True, null=True)
 
@@ -110,8 +118,9 @@ class FarmerOrder(models.Model):
     farmer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='farmer_orders')
     order_item = models.ForeignKey(OrderItem, on_delete=models.CASCADE)
     status = models.CharField(max_length=20, choices=Order.STATUS_CHOICES, default='Pending')
+    created_at = models.DateTimeField(default=timezone.now, editable=False)
     updated_at = models.DateTimeField(auto_now=True)
-
+    
     def __str__(self):
         return f"Farmer {self.farmer.username} - {self.order_item.product.name}"
 
@@ -127,7 +136,7 @@ class FarmerPayment(models.Model):
         return f"{self.farmer.username} - {self.amount} ({self.status})"
 
 class Notification(models.Model):
-    """Notifications for farmers (orders, stock, messages)"""
+    """Notifications for farmers/customers"""
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     message = models.TextField()
     is_read = models.BooleanField(default=False)
@@ -135,6 +144,7 @@ class Notification(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {'Read' if self.is_read else 'Unread'}"
+
 
 class StockAlert(models.Model):
     """Low stock alerts for farmers"""

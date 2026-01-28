@@ -3,164 +3,176 @@
 {% block content %}
 
 {% block style %}
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 {% endblock %}
 
 <style>
+.hero-section {
+    display: flex;
+    flex-wrap: wrap;
+    height: 90vh;
+    overflow: hidden;
+}
+
+.hero-left {
+    background-color: #ffd54f;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 60px;
+}
+
+.hero-left h1 {
+    font-size: 3rem;
+    font-weight: 800;
+    color: #1a1a1a;
+}
+
+.hero-left h1 span {
+    color: #00a000;
+}
+
+.hero-left p {
+    font-size: 1.2rem;
+    margin-top: 1rem;
+    color: #333;
+}
+
+.hero-buttons {
+    margin-top: 2rem;
+    display: flex;
+    gap: 1rem;
+}
+
+.hero-buttons .btn-start {
+    background-color: #28a745;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 30px;
+    border: none;
+    font-weight: 600;
+}
+
+.hero-buttons .btn-join {
+    border: 2px solid #1a1a1a;
+    padding: 12px 24px;
+    border-radius: 30px;
+    font-weight: 600;
+    background: white;
+    color: #1a1a1a;
+}
+
+.hero-stats {
+    margin-top: 2rem;
+    font-size: 1rem;
+    font-weight: 500;
+    color: #222;
+}
+
+.hero-stats span {
+    font-weight: bold;
+    margin-right: 10px;
+}
+
+.hero-right {
+    flex: 1;
+    background-color: #fff176;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.hero-right img {
+    max-width: 100%;
+    height: auto;
+    object-fit: cover;
+}
+
+@media (max-width: 768px) {
     .hero-section {
-        display: flex;
-        flex-wrap: wrap;
-        height: 90vh;
-        overflow: hidden;
-    }
-
-    .hero-left {
-        background-color: #ffd54f;
-        flex: 1;
-        display: flex;
         flex-direction: column;
-        justify-content: center;
-        padding: 60px;
-    }
-
-    .hero-left h1 {
-        font-size: 3rem;
-        font-weight: 800;
-        color: #1a1a1a;
-    }
-
-    .hero-left h1 span {
-        color: #00a000;
-    }
-
-    .hero-left p {
-        font-size: 1.2rem;
-        margin-top: 1rem;
-        color: #333;
-    }
-
-    .hero-buttons {
-        margin-top: 2rem;
-        display: flex;
-        gap: 1rem;
-    }
-
-    .hero-buttons .btn-start {
-        background-color: #28a745;
-        color: white;
-        padding: 12px 24px;
-        border-radius: 30px;
-        border: none;
-        font-weight: 600;
-    }
-
-    .hero-buttons .btn-join {
-        border: 2px solid #1a1a1a;
-        padding: 12px 24px;
-        border-radius: 30px;
-        font-weight: 600;
-        background: white;
-        color: #1a1a1a;
-    }
-
-    .hero-stats {
-        margin-top: 2rem;
-        font-size: 1rem;
-        font-weight: 500;
-        color: #222;
-    }
-
-    .hero-stats span {
-        font-weight: bold;
-        margin-right: 10px;
-    }
-
-    .hero-right {
-        flex: 1;
-        background-color: #fff176;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .hero-right img {
-        max-width: 100%;
         height: auto;
-        object-fit: cover;
     }
-
-    @media (max-width: 768px) {
-        .hero-section {
-            flex-direction: column;
-            height: auto;
-        }
-
-        .hero-left,
-        .hero-right {
-            padding: 2rem;
-        }
-
-        .hero-left h1 {
-            font-size: 2.2rem;
-        }
-
-        .hero-buttons {
-            flex-direction: column;
-            align-items: start;
-        }
+    .hero-left,
+    .hero-right {
+        padding: 2rem;
     }
-  .category-img {
-  width: 150px;
-  height: 150px;
-  object-fit: cover;
-  border-radius: 50%;
-  border: 3px solid #e0e0e0;
-  transition: transform 0.3s ease;
+    .hero-left h1 {
+        font-size: 2.2rem;
+    }
+    .hero-buttons {
+        flex-direction: column;
+        align-items: start;
+    }
+}
+
+.category-img {
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 3px solid #e0e0e0;
+    transition: transform 0.3s ease;
 }
 
 .category-img:hover {
-  transform: scale(1.07);
+    transform: scale(1.07);
 }
 
-  .category-card {
+.category-card {
     display: inline-block;
     margin-right: 15px;
     text-align: center;
     width: 100px;
-  }
-  .arrow-btn {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  padding: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-}
-.arrow-btn i {
-  font-size: 1.1rem;
-}
-  .click-effect {
-  transition: transform 0.1s ease, box-shadow 0.1s ease;
-}
-.click-effect:active {
-  transform: scale(0.95);
-  box-shadow: 0 0 8px rgba(0, 0, 0, 0.2) inset;
 }
 
+.arrow-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.arrow-btn i {
+    font-size: 1.1rem;
+}
+
+.click-effect {
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.click-effect:active {
+    transform: scale(0.95);
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.2) inset;
+}
+
+.product-card img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 8px 8px 0 0;
+}
+
+.btn-outline-dark {
+    border-radius: 25px;
+    font-weight: 500;
+}
 </style>
 
+<!-- Hero Section -->
 <div class="hero-section">
     <div class="hero-left">
         <h1><span>Organic</span> Foods at your<br>Doorsteps</h1>
         <p>Start Shopping with us for healthy living</p>
-
         <div class="hero-buttons">
             <a href="/products/"><button class="btn-start">Start Shopping</button></a>
             <a href="/register/"><button class="btn-join">Join us</button></a>
         </div>
-
         <div class="hero-stats">
             <span>19K+</span> Variety of Products &nbsp;&nbsp;
             <span>9K+</span> Happy Customers &nbsp;&nbsp;
@@ -172,7 +184,9 @@
         <img src="{% static 'images/fv.png' %}" alt="Basket Image">
     </div>
 </div>
-       <div style="background-color: #4caf50; padding: 2rem 0;">
+
+<!-- Features Section -->
+<div style="background-color: #4caf50; padding: 2rem 0;">
   <div class="container">
     <div class="row text-white">
       <div class="col-md-4">
@@ -181,7 +195,7 @@
             <div style="font-size: 1.5rem; margin-right: 10px;">🔄</div>
             <div>
               <strong>Fresh From Farm</strong><br>
-             <small>Picked and packed the same day by local farmers</small>
+              <small>Picked and packed the same day by local farmers</small>
             </div>
           </div>
         </div>
@@ -203,7 +217,7 @@
             <div style="font-size: 1.5rem; margin-right: 10px;">🚚</div>
             <div>
               <strong>Free Delivery</strong><br>
-             <small>Delivered to your doorstep within 24 hours</small>
+              <small>Delivered to your doorstep within 24 hours</small>
             </div>
           </div>
         </div>
@@ -211,67 +225,70 @@
     </div>
   </div>
 </div>
-<!-- Popular Categories Section -->
+
+<!-- Popular Categories -->
 <div class="container my-5">
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h4 class="fw-bold mb-0">Popular <span class="text-success">Categories</span></h4>
-    <div class="d-flex align-items-center gap-2">
-      <a href="/allcategories/" class="text-decoration-none text-dark btn btn-outline-success fw-semibold click-effect">View All Categories</a>
-      <!-- <div class="d-flex align-items-center gap-2">
-         <button onclick="scrollCategories(-1)" class="btn btn-outline-secondary arrow-btn">
-          <i class="bi bi-chevron-left"></i>
-      </button>
-       <button onclick="scrollCategories(1)" class="btn btn-success arrow-btn text-white">
-         <i class="bi bi-chevron-right"></i>
-     </button>
-</div> -->
-</div>
+    <a href="/allcategories/" class="text-decoration-none text-dark btn btn-outline-success fw-semibold click-effect">View All Categories</a>
   </div>
 
-<!-- Scrollable Category Items -->
-<div id="categoryScroll" class="d-flex overflow-auto gap-4 pb-2">
-  {% for cat in categories %}
-    <a href="/category/{{ cat.id }}/" class="text-decoration-none text-dark text-center flex-shrink-0">
-      <img src="{{ cat.image.url }}" alt="{{ cat.name }}"
-           class="category-img rounded-circle border border-success p-1"
-           style="width: 130px; height: 130px; object-fit: cover;">
-      <p class="mt-2 mb-0 small fw-medium">{{ cat.name }}</p>
-    </a>
-  {% endfor %}
+  <div id="categoryScroll" class="d-flex overflow-auto gap-4 pb-2">
+    {% for cat in categories %}
+      <a href="/category/{{ cat.id }}/" class="text-decoration-none text-dark text-center flex-shrink-0">
+        {% if cat.image %}
+          <img src="{{ cat.image.url }}" alt="{{ cat.name }}"
+               class="category-img rounded-circle border border-success p-1">
+        {% else %}
+          <img src="{% static 'images/placeholder.png' %}" alt="No Image"
+               class="category-img rounded-circle border border-success p-1">
+        {% endif %}
+        <p class="mt-2 mb-0 small fw-medium">{{ cat.name }}</p>
+      </a>
+    {% endfor %}
+  </div>
 </div>
+
+<!-- Freshly Arrived Products -->
 <div class="container mt-5">
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h4 class="fw-bold">Freshly Arrived</h4>
     <a href="/products/" class="btn btn-success btn-sm">VIEW ALL</a>
   </div>
- <div class="row">
-  {% for product in fresh_products %}
-  <div class="col-6 col-md-4 col-lg-3 mb-4">
-    <a href="/viewproduct/{{ product.id }}/" class="text-decoration-none text-dark">
-      <div class="card h-100 shadow-sm border-0 product-card">
-        {% if product.image %}
-          <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
-        {% else %}
-          <img src="{% static 'images/placeholder.png' %}" class="card-img-top" alt="No Image Available">
-        {% endif %}
-        <div class="card-body ">
-          <h6 class="card-title fw-semibold">{{ product.name }}</h6>
+
+  <div class="row">
+    {% for product in fresh_products %}
+    <div class="col-6 col-md-4 col-lg-3 mb-4">
+      <div class="card h-100 shadow-sm border-0 product-card d-flex flex-column">
+        <a href="/viewproduct/{{ product.id }}/" class="text-decoration-none text-dark">
+          {% if product.image %}
+            <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
+          {% else %}
+            <img src="{% static 'images/placeholder.png' %}" class="card-img-top" alt="No Image Available">
+          {% endif %}
+          <div class="card-body">
+            <h6 class="card-title fw-semibold">{{ product.name }}</h6>
             <p class="mb-1">
-            <span class="text-success fw-bold">₹{{ product.price }} / {{ product.unit }}</span>
-               {% if product.old_price %}
-                 <small class="text-muted text-decoration-line-through ms-1">₹{{ product.old_price }} / {{ product.unit }}</small>
-                 {% endif %}
-                </p>
+              <span class="text-success fw-bold">₹{{ product.price }} / {{ product.unit }}</span>
+              {% if product.old_price %}
+                <small class="text-muted text-decoration-line-through ms-1">₹{{ product.old_price }} / {{ product.unit }}</small>
+              {% endif %}
+            </p>
+          </div>
+        </a>
+
+        <!-- Add to Cart only for customers -->
+        {% if user.is_authenticated and user.userprofile.role == 'customer' %}
+        <div class="card-footer bg-white border-0 text-center pt-2 mt-auto">
+          <a href="/addtocart/{{ product.id }}/" class="btn btn-outline-dark btn-sm w-100">
+            <i class="bi bi-cart-plus"></i> Add to Cart
+          </a>
         </div>
+        {% endif %}
       </div>
-    </a>
-    <div class="card-footer bg-white border-0 text-center pt-2 mt-auto">
-      <a href="/addtocart/{{ product.id }}/" class="btn btn-outline-dark btn-sm w-100 mt-auto"> + ADD TO CART </a>
     </div>
+    {% endfor %}
   </div>
-  {% endfor %}
 </div>
+
 {% endblock %}
-
-
-

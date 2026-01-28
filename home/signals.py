@@ -43,3 +43,22 @@ def create_farmer_records(sender, instance, created, **kwargs):
         # Optionally reduce product stock automatically
         product.stock -= quantity
         product.save()
+
+@receiver(post_save, sender=FarmerOrder)
+def notify_customer_on_status_change(sender, instance, created, **kwargs):
+    if not created:  # Only on updates
+        customer = instance.order_item.order.user
+        message = f"Your order for {instance.order_item.product.name} is now {instance.status}."
+        Notification.objects.create(
+            user=customer,
+            message=message
+        )
+
+@receiver(post_save, sender=OrderItem)
+def notify_customer_on_new_order(sender, instance, created, **kwargs):
+    if created:
+        customer = instance.order.user
+        Notification.objects.create(
+            user=customer,
+            message=f"Your order for {instance.product.name} x {instance.quantity} has been placed successfully!"
+        )
