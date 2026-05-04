@@ -1,0 +1,17 @@
+# Uploads folder
+uploads/
+
+# Django
+db.sqlite3
+media/
+
+# Python
+__pycache__/
+*.pyc
+
+# Virtual environment
+env/
+venv/
+
+# Environment variables
+.env
