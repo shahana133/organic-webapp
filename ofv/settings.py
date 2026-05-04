@@ -131,8 +131,6 @@ MEDIA_ROOT = BASE_DIR / 'uploads'
 LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/'
 
+DEBUG = False
 
-DEBUG = True
-
-
-
+ALLOWED_HOSTS = ["organic-webapp.onrender.com"]
