@@ -133,4 +133,8 @@ LOGIN_REDIRECT_URL = '/'
 
 DEBUG = False
 
-ALLOWED_HOSTS = ["organic-webapp.onrender.com"]
+ALLOWED_HOSTS = [
+    "organic-webapp.onrender.com",
+    "localhost",
+    "127.0.0.1"
+]
