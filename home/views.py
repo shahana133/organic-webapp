@@ -24,25 +24,30 @@ from django.db.models import Prefetch
 
 # Home view
 
+# def homefn(request):
+#     role = None
+#     if request.user.is_authenticated:
+#         try:
+#             role = request.user.userprofile.role
+#         except:
+#             pass
+
+#     prdcts = Product.objects.all()
+#     categories = Category.objects.all()
+#     fresh_products = Product.objects.order_by('-created_at')[:8] 
+
+#     return render(request, 'home.html', {
+#         'prdcts': prdcts,
+#         'role': role,
+#         'user': request.user,
+#         'categories': categories,
+#         'fresh_products': fresh_products  
+#     })
+
+
+
 def homefn(request):
-    role = None
-    if request.user.is_authenticated:
-        try:
-            role = request.user.userprofile.role
-        except:
-            pass
-
-    prdcts = Product.objects.all()
-    categories = Category.objects.all()
-    fresh_products = Product.objects.order_by('-created_at')[:8] 
-
-    return render(request, 'home.html', {
-        'prdcts': prdcts,
-        'role': role,
-        'user': request.user,
-        'categories': categories,
-        'fresh_products': fresh_products  
-    })
+    return HttpResponse("Django is working on Render 🎉")
 
 @login_required
 def allcategoriesfn(request):
@@ -1018,3 +1023,4 @@ def helpcenterfn(request):
         return render(request, "customerhelpcenter.html")
     elif request.user.role == "farmer":
         return render(request, "farmerhelpcenter.html")
+
