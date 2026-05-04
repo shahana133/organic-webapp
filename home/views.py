@@ -24,30 +24,30 @@ from django.db.models import Prefetch
 
 # Home view
 
-# def homefn(request):
-#     role = None
-#     if request.user.is_authenticated:
-#         try:
-#             role = request.user.userprofile.role
-#         except:
-#             pass
-
-#     prdcts = Product.objects.all()
-#     categories = Category.objects.all()
-#     fresh_products = Product.objects.order_by('-created_at')[:8] 
-
-#     return render(request, 'home.html', {
-#         'prdcts': prdcts,
-#         'role': role,
-#         'user': request.user,
-#         'categories': categories,
-#         'fresh_products': fresh_products  
-#     })
-
-
-
 def homefn(request):
-    return HttpResponse("Django is working on Render 🎉")
+    role = None
+
+    if request.user.is_authenticated:
+        profile = getattr(request.user, "userprofile", None)
+        if profile:
+            role = getattr(profile, "role", None)
+
+    prdcts = Product.objects.all()
+    categories = Category.objects.all()
+
+    # safe fallback for created_at
+    try:
+        fresh_products = Product.objects.order_by('-created_at')[:8]
+    except:
+        fresh_products = Product.objects.all()[:8]
+
+    return render(request, 'home.html', {
+        'prdcts': prdcts,
+        'role': role,
+        'user': request.user,
+        'categories': categories,
+        'fresh_products': fresh_products
+    })
 
 @login_required
 def allcategoriesfn(request):
